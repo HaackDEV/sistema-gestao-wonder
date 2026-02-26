@@ -21,7 +21,7 @@ public class Produto implements Serializable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "fornecedor_id", nullable = false)
+    @JoinColumn(name = "fornecedor_id", nullable = false) // Nome da coluna que armazena o ID (Foreign Key)
     private Fornecedor fornecedor;
 
     @Column(name = "codigo_produto", nullable = false, unique = true)
