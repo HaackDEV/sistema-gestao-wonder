@@ -6,7 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "clientes")
+@Table(name = "tb_cliente")
 @Getter
 @Setter
 @NoArgsConstructor
