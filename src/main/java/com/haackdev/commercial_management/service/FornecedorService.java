@@ -41,7 +41,7 @@ public class FornecedorService {
         try {
             fornecedorRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Não é possível deletar um fornecedor que possui produtos vinculados.");
+            throw new DatabaseException("Não é possível deletar um fornecedor pois ele possui vínculos no banco de dados.");
         }
     }
 

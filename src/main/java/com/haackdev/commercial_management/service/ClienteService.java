@@ -41,7 +41,7 @@ public class ClienteService {
         try {
             clienteRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Não é possível deletar um cliente que possui pedidos ou desenvolvimentos vinculados.");
+            throw new DatabaseException("Não é possível deletar um cliente pois ele possui vínculos no banco de dados.");
         }
     }
 

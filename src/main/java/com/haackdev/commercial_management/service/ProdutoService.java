@@ -41,7 +41,7 @@ public class ProdutoService {
         try {
             produtoRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Não é possível deletar um produto que possui pedidos ou desenvolvimentos vinculados.");
+            throw new DatabaseException("Não é possível deletar um produto pois ele possui vínculos no banco de dados.");
         }
     }
 
