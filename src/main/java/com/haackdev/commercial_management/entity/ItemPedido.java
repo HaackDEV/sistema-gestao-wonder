@@ -1,5 +1,6 @@
 package com.haackdev.commercial_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class ItemPedido implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
@@ -31,6 +33,13 @@ public class ItemPedido implements Serializable {
     @Column(name = "quantidade", nullable = false)
     private Integer quantidade;
 
-    @Column(name = "valor_unitario",nullable = false, precision = 10, scale = 2)
+    @Column(name = "valor_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorUnitario;
+
+    public BigDecimal getSubTotal() {
+        if (this.valorUnitario == null || this.quantidade == null) {
+            return BigDecimal.ZERO;
+        }
+        return this.valorUnitario.multiply(BigDecimal.valueOf(this.quantidade));
+    }
 }

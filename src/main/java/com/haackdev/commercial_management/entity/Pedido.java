@@ -1,11 +1,14 @@
 package com.haackdev.commercial_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_pedido")
@@ -36,4 +39,8 @@ public class Pedido implements Serializable {
 
     @Column(name = "parcelas")
     private String parcelas;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    private List<ItemPedido> itens = new ArrayList<>();
 }

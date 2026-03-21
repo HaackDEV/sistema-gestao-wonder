@@ -52,8 +52,8 @@ public class TestConfig implements CommandLineRunner {
         produtoRepository.saveAll(Arrays.asList(p1, p2, p3));
 
         // --- PEDIDOS ---
-        Pedido ped1 = new Pedido(null, c1, LocalDate.now(), new BigDecimal("1000.00"), "Boleto", "3x");
-        Pedido ped2 = new Pedido(null, c2, LocalDate.now().minusDays(2), new BigDecimal("500.00"), "Cartão", "1x");
+        Pedido ped1 = new Pedido(null, c1, LocalDate.now(), new BigDecimal("1000.00"), "Boleto", "3x", null);
+        Pedido ped2 = new Pedido(null, c2, LocalDate.now().minusDays(2), new BigDecimal("500.00"), "Cartão", "1x", null);
         pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 
         // --- ITENS DE PEDIDO ---
