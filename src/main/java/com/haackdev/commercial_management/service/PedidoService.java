@@ -1,5 +1,6 @@
 package com.haackdev.commercial_management.service;
 
+import com.haackdev.commercial_management.entity.ItemPedido;
 import com.haackdev.commercial_management.entity.Pedido;
 import com.haackdev.commercial_management.repository.PedidoRepository;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
@@ -8,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,11 +30,20 @@ public class PedidoService {
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
+    @Transactional
     // Insere um novo pedido
     public Pedido insert(Pedido pedido) {
+        // Garantir o vínculo bidirecional em cada item do pedido
+        for (ItemPedido itemPedido : pedido.getItens()){
+            itemPedido.setPedido(pedido);
+        }
+        // Atribuir o valor total calculado usando a inteligência da entidade
+        pedido.setValorTotal(pedido.getValorTotalCalculado());
+        
         return pedidoRepository.save(pedido);
     }
 
+    @Transactional
     // Deleta um pedido pelo ID
     public void delete(Long id) {
         if (!pedidoRepository.existsById(id)) {
@@ -45,6 +56,7 @@ public class PedidoService {
         }
     }
 
+    @Transactional
     // Atualiza um pedido existente
     public Pedido update(Long id, Pedido pedido) {
         try {

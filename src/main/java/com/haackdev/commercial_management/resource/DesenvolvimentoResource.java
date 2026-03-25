@@ -1,6 +1,7 @@
 package com.haackdev.commercial_management.resource;
 
 import com.haackdev.commercial_management.entity.Desenvolvimento;
+import com.haackdev.commercial_management.entity.Pedido;
 import com.haackdev.commercial_management.service.DesenvolvimentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +48,11 @@ public class DesenvolvimentoResource {
     public ResponseEntity<Desenvolvimento> update(@PathVariable Long id, @RequestBody Desenvolvimento desenvolvimento) {
         desenvolvimento = service.update(id, desenvolvimento);
         return ResponseEntity.ok().body(desenvolvimento);
+    }
+
+    @PostMapping("/{id}/converter-em-pedido")
+    public ResponseEntity<Pedido> converterEmPedido(@PathVariable Long id) {
+        Pedido pedido = service.converterEmPedido(id);
+        return ResponseEntity.ok().body(pedido);
     }
 }

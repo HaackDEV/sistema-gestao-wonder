@@ -60,8 +60,30 @@ Preencha os links acima quando já estiverem definidos (GitHub, Railway/Render/F
 - [x]  **Etapa 1.4:** CRUD de `Produtos` (Implementar a primeira Chave Estrangeira com `@ManyToOne` apontando para Fornecedor).
 - [x]  **Etapa 1.5:** Módulo de `Desenvolvimentos` (CRUD e relacionamentos básicos implementados).
 - [x]  **Etapa 1.6:** Módulo de `Pedidos` e `Itens_Pedido` (CRUD e relacionamento bidirecional configurado).
-    - [ ]  **Pendência:** Implementar somatória automática do `valor_total` do Pedido ao manipular itens.
-    - [ ]  **Pendência:** Implementar lógica de conversão automática de `Desenvolvimento` -> `Pedido`.
+- [x]  **Pendência (Próxima Sessão):** Refatorar `Pedido` para Modelo de Domínio Rico (Clean Code).
+    *   Mover cálculo de `valorTotal` para a entidade `Pedido` (`getValorTotalCalculado()`).
+    *   Implementar métodos de associação bilateral na entidade (`addItem()`).
+    *   Garantir recálculo automático do total no `PedidoService` (insert/update).
+- [x]  **Pendência:** Implementar lógica de conversão automática de `Desenvolvimento` -> `Pedido`.
+
+### 📝 Detalhamento das Pendências (Fase 1)
+
+#### **1. Inteligência do Pedido (Cálculos e Integridade - Clean Code)**
+*   **Contexto:** O `Pedido` deve ser um modelo rico, responsável por sua própria consistência interna.
+*   **Próximos Passos Técnicos:**
+*   **Entidade Pedido:** Criar método `getValorTotalCalculado()` que soma os subtotais de cada `ItemPedido`.
+*   **Associação:** Criar método `addItem(ItemPedido item)` em `Pedido` para garantir que o vínculo bidirecional seja feito corretamente em memória antes de persistir.
+*   **Service:** Ajustar `PedidoService.insert()` e `PedidoService.update()` para que o `valorTotal` persistido seja sempre derivado do cálculo da entidade, evitando divergências.
+*   **Garantia de Integridade:** Usar `@Transactional` em todos os métodos que alteram `Pedido` e `ItemPedido` simultaneamente.
+#### **2. Fluxo de Conversão (Desenvolvimento -> Pedido)**
+*   **Contexto:** Evitar redigitação. Se um `Desenvolvimento` for aprovado, o sistema gera um `Pedido` base.
+*   **Fluxo Sugerido:**
+    *   Novo endpoint: `POST /desenvolvimentos/{id}/converter`.
+    *   Verificar se `status == StatusDesenvolvimento.APROVADO`.
+    *   Criar nova instância de `Pedido` com os dados do `Cliente` e `Produto` do desenvolvimento.
+    *   Marcar `virou_pedido = true` e registrar `data_conversao` no registro de origem.
+
+---
 
 ### 🖥️ Fase 2: Construção da Interface (Frontend com React)
 

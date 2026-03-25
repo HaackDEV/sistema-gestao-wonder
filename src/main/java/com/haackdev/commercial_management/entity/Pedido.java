@@ -43,4 +43,19 @@ public class Pedido implements Serializable {
     @JsonManagedReference
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private List<ItemPedido> itens = new ArrayList<>();
+
+    // Método para calcular o valor total do pedido
+    public BigDecimal getValorTotalCalculado() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (ItemPedido item : itens) {
+            total = total.add(item.getSubTotal());
+        }
+        return total;
+    }
+
+    // Método para adicionar um item ao pedido
+    public void addItem(ItemPedido item) {
+        itens.add(item);
+        item.setPedido(this);
+    }
 }

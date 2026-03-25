@@ -37,9 +37,9 @@ public class ItemPedido implements Serializable {
     private BigDecimal valorUnitario;
 
     public BigDecimal getSubTotal() {
-        if (this.valorUnitario == null || this.quantidade == null) {
+        if (valorUnitario == null || quantidade == null) {
             return BigDecimal.ZERO;
         }
-        return this.valorUnitario.multiply(BigDecimal.valueOf(this.quantidade));
+        return valorUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 }

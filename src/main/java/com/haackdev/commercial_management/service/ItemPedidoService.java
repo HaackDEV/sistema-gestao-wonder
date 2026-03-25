@@ -41,7 +41,8 @@ public class ItemPedidoService {
         try {
             itemPedidoRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Não é possível deletar um item de pedido pois ele possui vínculos no banco de dados.");
+            throw new DatabaseException(
+                    "Não é possível deletar um item de pedido pois ele possui vínculos no banco de dados.");
         }
     }
 
