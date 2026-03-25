@@ -85,30 +85,39 @@ Preencha os links acima quando já estiverem definidos (GitHub, Railway/Render/F
 
 ---
 
-### 🖥️ Fase 2: Construção da Interface (Frontend com React)
+### 📖 Fase 2: Documentação e Qualidade (Testes)
 
-*Objetivo: Criar as telas que a cliente vai usar no dia a dia para substituir planilhas e controles manuais.*
+*Objetivo: Garantir que a API está impecável, testada e bem documentada antes de qualquer cliente web consumi-la.*
 
-- [ ]  **Etapa 2.1:** Setup do projeto React, roteamento de páginas e layout base (menu lateral, cabeçalho).
-- [ ]  **Etapa 2.2:** Telas de Cadastro/Listagem (Fornecedores, Clientes, Produtos).
-- [ ]  **Etapa 2.3:** Conexão com a API (Axios, CORS, exibição de erros 400/404).
-- [ ]  **Etapa 2.4:** Telas de Operação (painel de Desenvolvimentos + emissão/visualização de Pedidos).
+- [ ]  **Etapa 2.1:** Configurar **Springdoc OpenAPI (Swagger)** para documentação interativa.
+- [ ]  **Etapa 2.2:** Testes Unitários dos Services (Foco em `PedidoService` e `DesenvolvimentoService`).
+- [ ]  **Etapa 2.3:** Testes de Integração dos Controllers (garantir retornos HTTP corretos).
+- [ ]  **Etapa 2.4:** Refinar conversão de Desenvolvimento: Implementar fallback para o preço do produto (usar `valorVenda` caso `valorConvertido` seja nulo) e evitar erro 400.
 
-### 🔒 Fase 3: Segurança e Refinamento
+### 🚀 Fase 3: Implantação (Deploy do Backend)
+
+*Objetivo: Tirar do `localhost` e colocar a API e o Banco em produção para acessibilidade.*
+
+- [ ]  **Etapa 3.1:** Setup do PostgreSQL em nuvem (ex: Supabase, Neon ou Aiven).
+- [ ]  **Etapa 3.2:** Deploy da API Spring Boot (Railway, Render ou Fly.io).
+
+### 🖥️ Fase 4: Construção da Interface (Frontend com React)
+
+*Objetivo: Criar as telas que a cliente vai usar consumindo a API já documentada e em produção.*
+
+- [ ]  **Etapa 4.1:** Setup do projeto React (Vite), roteamento de páginas e layout base (menu lateral, cabeçalho).
+- [ ]  **Etapa 4.2:** Telas de Cadastro/Listagem (Fornecedores, Clientes, Produtos).
+- [ ]  **Etapa 4.3:** Conexão com a API (Axios, CORS, exibição de erros).
+- [ ]  **Etapa 4.4:** Telas de Operação (painel de Desenvolvimentos + emissão/visualização de Pedidos).
+
+### 🔒 Fase 5: Segurança e Refinamento
 
 *Objetivo: Proteger os dados da agência contra acessos indevidos e polir o sistema.*
 
-- [ ]  **Etapa 3.1:** Spring Security + JWT.
-- [ ]  **Etapa 3.2:** Tela de Login + rotas protegidas.
-- [ ]  **Etapa 3.3:** Filtros de busca (ex: status = "Aprovado").
-
-### 🚀 Fase 4: Implantação (Deploy)
-
-*Objetivo: Tirar do `localhost` e colocar em produção para acesso da cliente.*
-
-- [ ]  **Etapa 4.1:** PostgreSQL em nuvem.
-- [ ]  **Etapa 4.2:** Deploy da API (Railway, Render ou [Fly.io](http://Fly.io)).
-- [ ]  **Etapa 4.3:** Deploy do Frontend (Vercel ou Netlify) apontando para a API.
+- [ ]  **Etapa 5.1:** Spring Security + JWT.
+- [ ]  **Etapa 5.2:** Tela de Login + rotas protegidas.
+- [ ]  **Etapa 5.3:** Filtros de busca (ex: status = "Aprovado").
+- [ ]  **Etapa 5.4:** Hospedagem do Frontend (Vercel ou Netlify).
 
 ---
 
@@ -133,6 +142,5 @@ Preencha os links acima quando já estiverem definidos (GitHub, Railway/Render/F
 ## Próximas decisões (pendentes)
 
 - Estratégia de **soft delete** (sim/não)
-- Onde ficará a **documentação da API** (Swagger/OpenAPI)
 - Regra de negócio: O Pedido deve herdar o preço do Produto no momento da venda ou permitir edição livre?
 - Como rastrear o histórico de alterações em um Pedido (Audit Log simplificado).
