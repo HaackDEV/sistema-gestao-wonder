@@ -94,6 +94,11 @@ public class DesenvolvimentoService {
         ItemPedido item = new ItemPedido();
         item.setProduto(desenvolvimento.getProduto());
         item.setQuantidade(1);
+        
+        if (desenvolvimento.getValorConvertido() == null) {
+            throw new DatabaseException("O desenvolvimento não possui um valor de conversão definido. Atualize o desenvolvimento antes de faturá-lo.");
+        }
+        
         item.setValorUnitario(desenvolvimento.getValorConvertido());
         pedido.addItem(item);
 
