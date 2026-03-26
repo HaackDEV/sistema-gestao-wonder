@@ -30,6 +30,7 @@ public class ClienteService {
 
     // Insere um novo cliente
     public Cliente insert(Cliente cliente) {
+        cliente.setId(null);
         return clienteRepository.save(cliente);
     }
 

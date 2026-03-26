@@ -37,6 +37,7 @@ public class DesenvolvimentoService {
 
     // Insere um novo desenvolvimento
     public Desenvolvimento insert(Desenvolvimento desenvolvimento) {
+        desenvolvimento.setId(null);
         return desenvolvimentoRepository.save(desenvolvimento);
     }
 
@@ -76,32 +77,32 @@ public class DesenvolvimentoService {
     }
 
     @Transactional
-    public Pedido converterEmPedido(Long id){
+    public Pedido converterEmPedido(Long id) {
         Desenvolvimento desenvolvimento = findById(id);
-        if (desenvolvimento.getVirouPedido() == true){
+        if (desenvolvimento.getVirouPedido() == true) {
             throw new DatabaseException("Este desenvolvimento já foi convertido em pedido.");
         }
-        
+
         if (desenvolvimento.getStatus() != StatusDesenvolvimento.APROVADO) {
             throw new DatabaseException("Apenas desenvolvimentos aprovados podem ser convertidos em pedido.");
         }
-        
+
         Pedido pedido = new Pedido();
         pedido.setCliente(desenvolvimento.getCliente());
         pedido.setDataPedido(LocalDate.now());
-        
+
         ItemPedido item = new ItemPedido();
         item.setProduto(desenvolvimento.getProduto());
         item.setQuantidade(1);
         item.setValorUnitario(desenvolvimento.getValorConvertido());
         pedido.addItem(item);
-        
+
         pedido = pedidoService.insert(pedido);
-        
+
         desenvolvimento.setVirouPedido(true);
         desenvolvimento.setDataConversao(LocalDate.now());
         desenvolvimentoRepository.save(desenvolvimento);
-        
+
         return pedido;
     }
 }

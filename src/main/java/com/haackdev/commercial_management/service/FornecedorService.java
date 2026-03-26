@@ -30,6 +30,7 @@ public class FornecedorService {
 
     // Insere um novo fornecedor
     public Fornecedor insert(Fornecedor fornecedor) {
+        fornecedor.setId(null);
         return fornecedorRepository.save(fornecedor);
     }
 

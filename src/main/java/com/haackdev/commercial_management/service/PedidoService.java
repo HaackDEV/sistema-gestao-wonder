@@ -34,7 +34,9 @@ public class PedidoService {
     // Insere um novo pedido
     public Pedido insert(Pedido pedido) {
         // Garantir o vínculo bidirecional em cada item do pedido
+        pedido.setId(null);
         for (ItemPedido itemPedido : pedido.getItens()){
+            itemPedido.setId(null);
             itemPedido.setPedido(pedido);
         }
         // Atribuir o valor total calculado usando a inteligência da entidade
