@@ -92,7 +92,7 @@ Preencha os links acima quando já estiverem definidos (GitHub, Railway/Render/F
 - [x]  **Etapa 2.1:** Configurar **Springdoc OpenAPI (Swagger)** para documentação interativa.
 - [ ]  **Etapa 2.2:** Testes Unitários dos Services (Foco em `PedidoService` e `DesenvolvimentoService`).
 - [ ]  **Etapa 2.3:** Testes de Integração dos Controllers (garantir retornos HTTP corretos).
-- [ ]  **Etapa 2.4:** Refinar conversão de Desenvolvimento: Implementar fallback para o preço do produto (usar `valorVenda` caso `valorConvertido` seja nulo) e evitar erro 400.
+- [x]  **Etapa 2.4:** Refinar conversão de Desenvolvimento: Implementar regra de negócio onde `valorConvertido` vazio impede a conversão e dispara exceção clara (evitando preenchimento não autorizado).
 
 ### 🚀 Fase 3: Implantação (Deploy do Backend)
 
