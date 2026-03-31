@@ -20,6 +20,10 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 
+/**
+ * Testes Unitários da Camada de Serviço para a entidade Pedido.
+ * Usa Mockito para isolar a lógica de negócio das dependências de banco de dados.
+ */
 @ExtendWith(MockitoExtension.class)
 public class PedidoServiceTest {
 
@@ -34,6 +38,10 @@ public class PedidoServiceTest {
     private Pedido pedido;
     private ItemPedido item;
 
+    /**
+     * Preparação inicial, ocorre ANTES de cada método de teste ser executado.
+     * Serve para configurar os cenários comuns de Mock.
+     */
     @BeforeEach
     void setUp() throws Exception {
         idExistente = 1L;
@@ -50,31 +58,53 @@ public class PedidoServiceTest {
         pedido.addItem(item);
     }
 
+    // -------------------------------------------------------------
+    // CENÁRIOS DE CONSULTA
+    // -------------------------------------------------------------
+
     @Test
     public void findAllDeveRetornarLista() {
+        // ARRANGE
         Mockito.when(repository.findAll()).thenReturn(List.of(pedido));
+        
+        // ACT
         List<Pedido> result = service.findAll();
+        
+        // ASSERT
         Assertions.assertFalse(result.isEmpty());
     }
 
     @Test
     public void findByIdDeveRetornarPedidoQuandoIdExistir() {
+        // ARRANGE
         Mockito.when(repository.findById(idExistente)).thenReturn(Optional.of(pedido));
+        
+        // ACT
         Pedido result = service.findById(idExistente);
+        
+        // ASSERT
         Assertions.assertNotNull(result);
     }
 
     @Test
     public void findByIdDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
+        // ARRANGE
         Mockito.when(repository.findById(idInexistente)).thenReturn(Optional.empty());
+        
+        // ACT & ASSERT
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(idInexistente));
     }
 
+    // -------------------------------------------------------------
+    // CENÁRIOS DE INSERÇÃO
+    // -------------------------------------------------------------
+
     @Test
     public void insertDeveCalcularTotalEConfigurarItens() {
+        // ARRANGE
         Mockito.when(repository.save(any())).thenReturn(pedido);
         
-        // Arrange com um pedido novo (id null)
+        // Criando um pedido novo (id null) para simular inserção
         Pedido novoPedido = new Pedido();
         ItemPedido novoItem = new ItemPedido();
         novoItem.setId(99L);
@@ -82,38 +112,56 @@ public class PedidoServiceTest {
         novoItem.setValorUnitario(new BigDecimal("10.00"));
         novoPedido.addItem(novoItem);
         
-        // Act
+        // ACT
         Pedido result = service.insert(novoPedido);
         
-        // Assert
+        // ASSERT
         Assertions.assertNotNull(result);
-        Assertions.assertNull(novoPedido.getId()); // O service seta null
-        Assertions.assertNull(novoItem.getId()); // O service seta null no item
+        Assertions.assertNull(novoPedido.getId()); // O service deve garantir id null para novos registros
+        Assertions.assertNull(novoItem.getId()); // O service deve garantir id null nos itens
         Assertions.assertEquals(new BigDecimal("30.00"), novoPedido.getValorTotal()); // 3 * 10
-        Assertions.assertEquals(novoPedido, novoItem.getPedido()); // Vinculo bidirecional
+        Assertions.assertEquals(novoPedido, novoItem.getPedido()); // Vínculo bidirecional verificado
         
         Mockito.verify(repository).save(novoPedido);
     }
 
+    // -------------------------------------------------------------
+    // CENÁRIOS DE EXCLUSÃO
+    // -------------------------------------------------------------
+
     @Test
     public void deleteDeveNaoFazerNadaQuandoIdExistir() {
+        // ARRANGE
         Mockito.when(repository.existsById(idExistente)).thenReturn(true);
         Mockito.doNothing().when(repository).deleteById(idExistente);
+        
+        // ACT & ASSERT
         Assertions.assertDoesNotThrow(() -> service.delete(idExistente));
     }
 
+    // -------------------------------------------------------------
+    // CENÁRIOS DE ATUALIZAÇÃO
+    // -------------------------------------------------------------
+
     @Test
     public void updateDeveRetornarPedidoQuandoIdExistir() {
+        // ARRANGE
         Mockito.when(repository.getReferenceById(idExistente)).thenReturn(pedido);
         Mockito.when(repository.save(any())).thenReturn(pedido);
         
+        // ACT
         Pedido result = service.update(idExistente, pedido);
+        
+        // ASSERT
         Assertions.assertNotNull(result);
     }
 
     @Test
     public void updateDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
+        // ARRANGE
         Mockito.when(repository.getReferenceById(idInexistente)).thenThrow(EntityNotFoundException.class);
+        
+        // ACT & ASSERT
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(idInexistente, pedido));
     }
 }
