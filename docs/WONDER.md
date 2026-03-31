@@ -1,146 +1,70 @@
-# Sistema de Gestão WONDER
+# WONDER - Master Roadmap 🗺️
 
-<aside>
-📌
-
-**Objetivo desta página**
-
-Centralizar as informações do sistema ***WONDER*** para entender rapidamente o contexto, a stack, o banco e o plano de entrega do MVP.
-
-</aside>
-
-## Visão geral
-
-O ***WONDER*** é um **sistema de gerenciamento comercial** para substituir planilhas e controles manuais, com foco em fluxo de cadastro e operação (clientes, fornecedores, produtos, desenvolvimentos e pedidos).
-
-## Stack
-
-- **Java 25**
-- **Spring Boot 4.0.3**
-- **PostgreSQL**
-
-## Repositórios e ambientes
-
-- **Backend (API):**
-- **Frontend (React):**
-- **Ambientes:** Dev / Homolog / Prod
-
-<aside>
-✅
-
-Preencha os links acima quando já estiverem definidos (GitHub, Railway/Render/Fly, Vercel/Netlify etc.).
-
-</aside>
+Este documento centraliza o planejamento estratégico, as diretrizes de engenharia e o progresso do desenvolvimento do sistema **WONDER**.
 
 ---
 
-## Estrutura do banco de dados
+## 🏗️ Filosofia de Desenvolvimento e Stack
 
-### Diagrama (referência)
-
-![1a28056e-9993-47f5-bfca-68e2d2875851.jpeg](../../Users/ruanh/Downloads/1a28056e-9993-47f5-bfca-68e2d2875851.jpeg)
-
-### Regras e padrões (definições do time)
-
-- **Nomenclatura:** snake_case no banco e nas URLs de recursos (ex: `/itens_pedidos`), camelCase no Java.
-- **Constraints:** PK/FK obrigatórias, `NOT NULL` onde fizer sentido, índices nas FKs e campos de busca.
-- **Integridade:** exclusões com regra clara (soft delete vs cascade) antes de implementar.
+- **Linguagem:** Java 25 (Funcionalidades modernas da JVM)
+- **Framework:** Spring Boot 4.0.3 (Ecossistema Spring de última geração)
+- **Engine de Banco:** PostgreSQL (Gerenciamento transacional robusto)
+- **Engenharia:** DDD Simplificado (Entidades Ricas), Clean Code e SOLID.
 
 ---
 
-## Planejamento do MVP (Roadmap)
+## 📈 Roadmap de Entrega
 
-### ⚙️ Fase 1: Fundação Backend (Spring Boot + PostgreSQL)
+### ✅ Fase 1: Fundação Backend (MVP Funcional)
+*Objetivo: Estabelecer a persistência e as operações básicas (CRUD) de todos os domínios essenciais.*
 
-*Objetivo: Construir a API REST robusta, mapear todas as tabelas do diagrama e garantir a integridade dos dados.*
+- [x]  **Etapa 1.1:** Setup de infraestrutura (Postgres + Hibernate + Docker).
+- [x]  **Etapa 1.2:** Domínio de `Fornecedores` e `Clientes`.
+- [x]  **Etapa 1.3:** Domínio de `Produtos` com vínculos relacionais.
+- [x]  **Etapa 1.4:** Módulo de `Desenvolvimentos` (Acompanhamento de amostras).
+- [x]  **Etapa 1.5:** Módulo de `Pedidos` (Emissão e integridade bidirecional).
+- [x]  **Etapa 1.6:** Implementação do Cálculo Automático do Valor Total (`getValorTotalCalculado`).
+- [x]  **Etapa 1.7:** Lógica de Conversão Automática de `Desenvolvimento` -> `Pedido`.
+- [x]  **Review Técnica Sênior:** Concluída (Ver [backend_review.md](backend_review.md)).
 
-- [x]  **Etapa 1.1:** Setup do banco de dados e mapeamento ORM inicial.
-- [x]  **Etapa 1.2:** CRUD de `Fornecedores` + Tratamento Global de Exceções (`ResourceExceptionHandler`).
-- [x]  **Etapa 1.3:** CRUD de `Clientes` (Entidade independente, focar no mapeamento dos vários atributos de contato e endereço).
-- [x]  **Etapa 1.4:** CRUD de `Produtos` (Implementar a primeira Chave Estrangeira com `@ManyToOne` apontando para Fornecedor).
-- [x]  **Etapa 1.5:** Módulo de `Desenvolvimentos` (CRUD e relacionamentos básicos implementados).
-- [x]  **Etapa 1.6:** Módulo de `Pedidos` e `Itens_Pedido` (CRUD e relacionamento bidirecional configurado).
-- [x]  **Pendência (Próxima Sessão):** Refatorar `Pedido` para Modelo de Domínio Rico (Clean Code).
-    *   Mover cálculo de `valorTotal` para a entidade `Pedido` (`getValorTotalCalculado()`).
-    *   Implementar métodos de associação bilateral na entidade (`addItem()`).
-    *   Garantir recálculo automático do total no `PedidoService` (insert/update).
-- [x]  **Pendência:** Implementar lógica de conversão automática de `Desenvolvimento` -> `Pedido`.
+### 🚧 Fase 2: Qualidade e Refatoração (Pré-Deploy)
+*Objetivo: Profissionalizar o contrato da API, isolar o domínio e garantir a integridade total dos dados.*
 
-### 📝 Detalhamento das Pendências (Fase 1)
+- [ ]  **Etapa 2.1:** Implementação da Camada de **DTOs** (Isolamento do Banco da API).
+- [ ]  **Etapa 2.2:** Integração do **MapStruct** para mapeamento performático.
+- [ ]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs.
+- [ ]  **Etapa 2.4:** Refatoração para **Constructor Injection** em Services e Resources.
+- [ ]  **Etapa 2.5:** Setup de Variáveis de Ambiente para Produção.
 
-#### **1. Inteligência do Pedido (Cálculos e Integridade - Clean Code)**
-*   **Contexto:** O `Pedido` deve ser um modelo rico, responsável por sua própria consistência interna.
-*   **Próximos Passos Técnicos:**
-*   **Entidade Pedido:** Criar método `getValorTotalCalculado()` que soma os subtotais de cada `ItemPedido`.
-*   **Associação:** Criar método `addItem(ItemPedido item)` em `Pedido` para garantir que o vínculo bidirecional seja feito corretamente em memória antes de persistir.
-*   **Service:** Ajustar `PedidoService.insert()` e `PedidoService.update()` para que o `valorTotal` persistido seja sempre derivado do cálculo da entidade, evitando divergências.
-*   **Garantia de Integridade:** Usar `@Transactional` em todos os métodos que alteram `Pedido` e `ItemPedido` simultaneamente.
-#### **2. Fluxo de Conversão (Desenvolvimento -> Pedido)**
-*   **Contexto:** Evitar redigitação. Se um `Desenvolvimento` for aprovado, o sistema gera um `Pedido` base.
-*   **Fluxo Sugerido:**
-    *   Novo endpoint: `POST /desenvolvimentos/{id}/converter`.
-    *   Verificar se `status == StatusDesenvolvimento.APROVADO`.
-    *   Criar nova instância de `Pedido` com os dados do `Cliente` e `Produto` do desenvolvimento.
-    *   Marcar `virou_pedido = true` e registrar `data_conversao` no registro de origem.
+### 📖 Fase 3: Documentação de Qualidade e Testes (CI/CD Ready)
+*Objetivo: Alcançar cobertura de testes e documentação de integração completa.*
 
----
+- [x]  Configurar Springdoc Swagger UI (Documentação Interativa).
+- [x]  Testes de Unidade (`Service Layer`).
+- [x]  Testes de Integração (`Controller Layer`).
+- [ ]  Documentação de Schemas OpenAPI detalhados.
 
-### 📖 Fase 2: Documentação e Qualidade (Testes)
+### 🚀 Fase 4: Implantação e Nuvem (Cloud Architecture)
+*Objetivo: Publicar a API em ambiente escalável.*
 
-*Objetivo: Garantir que a API está impecável, testada e bem documentada antes de qualquer cliente web consumi-la.*
+- [ ]  Migração do PostgreSQL para nuvem (Supabase/Neon).
+- [ ]  Deploy automático (CI/CD) no Railway ou Render.
 
-- [x]  **Etapa 2.1:** Configurar **Springdoc OpenAPI (Swagger)** para documentação interativa.
-- [x]  **Etapa 2.2:** Testes Unitários dos Services (Foco em `PedidoService` e `DesenvolvimentoService`).
-- [x]  **Etapa 2.3:** Testes de Integração dos Controllers (garantir retornos HTTP corretos).
-- [x]  **Etapa 2.4:** Refinar conversão de Desenvolvimento: Implementar regra de negócio onde `valorConvertido` vazio impede a conversão e dispara exceção clara (evitando preenchimento não autorizado).
+### 🖥️ Fase 5: Interface Gráfica (Frontend React)
+*Objetivo: Dar vida ao sistema com uma UI moderna e responsiva.*
 
-### 🚀 Fase 3: Implantação (Deploy do Backend)
-
-*Objetivo: Tirar do `localhost` e colocar a API e o Banco em produção para acessibilidade.*
-
-- [ ]  **Etapa 3.1:** Setup do PostgreSQL em nuvem (ex: Supabase, Neon ou Aiven).
-- [ ]  **Etapa 3.2:** Deploy da API Spring Boot (Railway, Render ou Fly.io).
-
-### 🖥️ Fase 4: Construção da Interface (Frontend com React)
-
-*Objetivo: Criar as telas que a cliente vai usar consumindo a API já documentada e em produção.*
-
-- [ ]  **Etapa 4.1:** Setup do projeto React (Vite), roteamento de páginas e layout base (menu lateral, cabeçalho).
-- [ ]  **Etapa 4.2:** Telas de Cadastro/Listagem (Fornecedores, Clientes, Produtos).
-- [ ]  **Etapa 4.3:** Conexão com a API (Axios, CORS, exibição de erros).
-- [ ]  **Etapa 4.4:** Telas de Operação (painel de Desenvolvimentos + emissão/visualização de Pedidos).
-
-### 🔒 Fase 5: Segurança e Refinamento
-
-*Objetivo: Proteger os dados da agência contra acessos indevidos e polir o sistema.*
-
-- [ ]  **Etapa 5.1:** Spring Security + JWT.
-- [ ]  **Etapa 5.2:** Tela de Login + rotas protegidas.
-- [ ]  **Etapa 5.3:** Filtros de busca (ex: status = "Aprovado").
-- [ ]  **Etapa 5.4:** Hospedagem do Frontend (Vercel ou Netlify).
+- [ ]  Setup React (Vite) + Tailwind CSS.
+- [ ]  Integração com a API Backend (Axios).
+- [ ]  Dashboard de Operações e Gestora Comercial.
 
 ---
 
-## Método de trabalho (Ágil)
+## 🛠️ Padrões e Decisões Técnicas
 
-[Kanban — WONDER](https://www.notion.so/befee5a8076a4ac0b8e79a2215c23193?pvs=21)
-
-### Sugestão: Kanban com cadência semanal (simples e eficiente)
-
-- **Quadro Kanban:** Backlog → Em andamento → Em revisão → Teste → Done
-- **WIP limit:** limite de itens “Em andamento” para reduzir troca de contexto.
-
-### Definição de pronto (DoD)
-
-- Endpoint funcionando
-- Validações + tratamento de erros coerentes
-- Teste mínimo (unitário ou integração, conforme o caso)
-- Documentado (README/Swagger)
+- **Case Style:** `snake_case` em tabelas e URLs; `camelCase` no código Java.
+- **API Versioning:** Versão inicial no header ou URL conforme necessidade futura.
+- **Relacionamentos:** Uso de `CascadeType.ALL` em Pedidos para integridade total dos itens.
+- **Lazy Loading:** Padrão para coleções grandes, evitando sobrecarga de memória.
 
 ---
-
-## Próximas decisões (pendentes)
-
-- Estratégia de **soft delete** (sim/não)
-- Regra de negócio: O Pedido deve herdar o preço do Produto no momento da venda ou permitir edição livre?
-- Como rastrear o histórico de alterações em um Pedido (Audit Log simplificado).
+*Este roadmap é um documento vivo e deve ser atualizado a cada sprint de desenvolvimento.*
