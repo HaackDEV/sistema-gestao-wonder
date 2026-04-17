@@ -12,7 +12,7 @@ import com.haackdev.commercial_management.dto.response.ClienteResponse;
 public interface ClienteMapper {
 
     @Mapping(target = "id", ignore = true)
-    Cliente requestToCliente (ClienteRequest request);
+    Cliente requestToCliente (ClienteRequest request); // Converte um ClienteRequest para Cliente
 
-    ClienteResponse clienteToClienteResponse (Cliente cliente);
+    ClienteResponse clienteToClienteResponse (Cliente cliente); // Converte um Cliente para ClienteResponse
 }
