@@ -1,7 +1,8 @@
 package com.haackdev.commercial_management.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.haackdev.commercial_management.entity.Cliente;
+import com.haackdev.commercial_management.dto.request.ClienteRequest;
+import com.haackdev.commercial_management.dto.response.ClienteResponse;
 import com.haackdev.commercial_management.service.ClienteService;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
@@ -36,45 +37,63 @@ public class ClienteResourceTest {
     @MockitoBean
     private ClienteService service; // Mock da camada de serviço. Em Spring Boot 3.4+ usa-se @MockitoBean ao invés de @MockBean
 
-    private ObjectMapper objectMapper = new ObjectMapper(); // Ferramenta para traduzir objetos Java em JSON (Serialização/Desserialização)
+    private final ObjectMapper objectMapper = new ObjectMapper(); // Ferramenta para traduzir objetos Java em JSON (Serialização/Desserialização)
 
     private Long idExistente;
     private Long idInexistente;
     private Long idDependente; // ID usado para simular um cliente atrelado a algo que não pode ser apagado
-    private Cliente cliente;
+    private ClienteRequest requestDTO;
 
     /**
      * Preparação inicial, ocorre ANTES de cada método de teste ser executado.
      * Serve para definir o comportamento das nossas simulações (Mocks).
      */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         idExistente = 1L;
         idInexistente = 99L;
         idDependente = 2L;
 
-        // Criando uma entidade falsa (mock) para os testes
-        cliente = new Cliente();
-        cliente.setId(idExistente);
-        cliente.setNomeFantasia("Wonder SA");
-        cliente.setRazaoSocial("Wonder Inc.");
-        cliente.setCnpj("12.345.678/0001-90");
+        ClienteResponse responseDTO = new ClienteResponse(
+                1L,
+                "Razão Social",
+                "Wonder SA",
+                "12345678000190",
+                "email@teste.com",
+                "Cidade",
+                "SC"
+        );
+
+        requestDTO = new ClienteRequest(
+                "Razão Social",
+                "Wonder SA",
+                "12345678000190",
+                "Endereço",
+                "Cidade",
+                "SC",
+                "4799999999",
+                "email@teste.com",
+                "Contato Dev",
+                "Contato Compras",
+                "30 dias"
+
+        );
 
         // Regra do mock: Quando o findAll() for chamado, retorne uma lista com nosso cliente.
-        when(service.findAll()).thenReturn(List.of(cliente));
+        when(service.findAll()).thenReturn(List.of(responseDTO));
 
         // Regra do mock: Quando buscar por ID 1, retorne o cliente.
-        when(service.findById(idExistente)).thenReturn(cliente);
+        when(service.findById(idExistente)).thenReturn(responseDTO);
         
         // Regra do mock: Quando buscar por ID 99, lance exceção (Não encontrado).
         when(service.findById(idInexistente)).thenThrow(ResourceNotFoundException.class);
 
         // Regra do mock: Quando salvar qualquer cliente, retorne esse mesmo cliente salvo.
-        when(service.insert(any(Cliente.class))).thenReturn(cliente);
+        when(service.insert(any(ClienteRequest.class))).thenReturn(responseDTO);
 
         // Regra do mock: Quando atualizar o ID existente, retorna ele mesmo. Modos inválidos laçam exceção.
-        when(service.update(eq(idExistente), any(Cliente.class))).thenReturn(cliente);
-        when(service.update(eq(idInexistente), any(Cliente.class))).thenThrow(ResourceNotFoundException.class);
+        when(service.update(eq(idExistente), any(ClienteRequest.class))).thenReturn(responseDTO);
+        when(service.update(eq(idInexistente), any(ClienteRequest.class))).thenThrow(ResourceNotFoundException.class);
 
         // Regras do mock: Deleção. doNothing é usado para métodos void.
         doNothing().when(service).delete(idExistente);
@@ -123,7 +142,7 @@ public class ClienteResourceTest {
     @Test
     public void insertDeveRetornarStatusCreatedEClienteAoInserir() throws Exception {
         // Converte nosso objeto Java em um JSON para enviarmos na requisição HTTP
-        String corpoJson = objectMapper.writeValueAsString(cliente);
+        String corpoJson = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(post("/clientes")
                 .content(corpoJson)
@@ -169,7 +188,7 @@ public class ClienteResourceTest {
 
     @Test
     public void updateDeveRetornarClienteEStatusOkQuandoIdExistir() throws Exception {
-        String corpoJson = objectMapper.writeValueAsString(cliente);
+        String corpoJson = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(put("/clientes/{id}", idExistente)
                 .content(corpoJson)
@@ -178,11 +197,12 @@ public class ClienteResourceTest {
 
         resultado.andExpect(status().isOk());
         resultado.andExpect(jsonPath("$.id").value(idExistente));
+        resultado.andExpect(jsonPath("$.nomeFantasia").value("Wonder SA"));
     }
 
     @Test
     public void updateDeveRetornarNotFoundQuandoIdNaoExistir() throws Exception {
-        String corpoJson = objectMapper.writeValueAsString(cliente);
+        String corpoJson = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(put("/clientes/{id}", idInexistente)
                 .content(corpoJson)
