@@ -1,3 +1,8 @@
+> Aviso de Transparência (IA)
+> Este documento foi gerado com auxílio de uma ferramenta de IA em 2026-05 e reflete sugestões de revisão à época.
+> Ele NÃO deve ser interpretado como estado atual e oficial do código.
+> Para informações atualizadas, consulte o README e o GUIA_DE_DESENVOLVIMENTO.
+
 # Análise Técnica e Revisão de Código - Backend MVP
 
 Este documento registra a revisão técnica realizada no estágio final da Fase 1 (Fundação) do projeto WONDER. O objetivo é estabelecer diretrizes de qualidade, identificar pontos de refatoração necessários e alinhar o projeto a padrões de mercado.
