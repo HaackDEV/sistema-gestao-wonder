@@ -6,8 +6,8 @@ services:
     container_name: postgres-gestao-comercial
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: gestao_comercial
     ports:
       - "5432:5432"
