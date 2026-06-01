@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 @Configuration
+@org.springframework.context.annotation.Profile("!test")
 public class TestConfig implements CommandLineRunner {
 
     @Autowired
