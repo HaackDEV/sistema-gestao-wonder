@@ -48,9 +48,12 @@ Para entender mais sobre os processos de engenharia do projeto, acesse:
 ## 🚦 Como Rodar em Desenvolvimento
 
 1. **Pré-requisitos**: Docker e Java 25 instalados.
-2. **Banco de Dados**: Execute `docker-compose up -d`.
-3. **Aplicação**: Rode via IDE ou `./mvnw spring-boot:run`.
-4. **API Docs**: Acesse `http://localhost:8080/swagger-ui/index.html`.
+2. **Variáveis de ambiente**: copie `.env.example` para `.env` e ajuste os valores conforme seu ambiente.
+3. **Banco de Dados**: Execute `docker-compose up -d` (ou `docker compose up -d` em versões mais novas).
+4. **Aplicação**:
+   - Linux/macOS: `./mvnw spring-boot:run`
+   - Windows (PowerShell/CMD): `mvnw.cmd spring-boot:run`
+5. **API Docs**: Acesse `http://localhost:8080/swagger-ui.html`.
 
 ---
 *Developed with focus on quality and commercial scalability.*
