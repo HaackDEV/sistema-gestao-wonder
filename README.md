@@ -54,6 +54,3 @@ Para entender mais sobre os processos de engenharia do projeto, acesse:
    - Linux/macOS: `./mvnw spring-boot:run`
    - Windows (PowerShell/CMD): `mvnw.cmd spring-boot:run`
 5. **API Docs**: Acesse `http://localhost:8080/swagger-ui.html`.
-
----
-*Developed with focus on quality and commercial scalability.*
