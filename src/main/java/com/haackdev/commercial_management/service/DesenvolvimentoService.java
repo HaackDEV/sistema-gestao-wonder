@@ -1,44 +1,72 @@
 package com.haackdev.commercial_management.service;
 
-import com.haackdev.commercial_management.entity.Desenvolvimento;
-import com.haackdev.commercial_management.entity.ItemPedido;
+import com.haackdev.commercial_management.dto.request.DesenvolvimentoRequest;
+import com.haackdev.commercial_management.dto.response.DesenvolvimentoResponse;
+import com.haackdev.commercial_management.entity.*;
 import com.haackdev.commercial_management.entity.enums.StatusDesenvolvimento;
-import com.haackdev.commercial_management.entity.Pedido;
+import com.haackdev.commercial_management.mapper.DesenvolvimentoMapper;
+import com.haackdev.commercial_management.repository.ClienteRepository;
 import com.haackdev.commercial_management.repository.DesenvolvimentoRepository;
+import com.haackdev.commercial_management.repository.ProdutoRepository;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DesenvolvimentoService {
 
-    @Autowired
-    private DesenvolvimentoRepository desenvolvimentoRepository;
+    private final DesenvolvimentoRepository desenvolvimentoRepository;
+    private final DesenvolvimentoMapper desenvolvimentoMapper;
+    private final ClienteRepository clienteRepository;
+    private final ProdutoRepository produtoRepository;
+    private final PedidoService pedidoService;
 
-    @Autowired
-    private PedidoService pedidoService;
+    public DesenvolvimentoService(DesenvolvimentoRepository desenvolvimentoRepository, DesenvolvimentoMapper desenvolvimentoMapper, ClienteRepository clienteRepository, ProdutoRepository produtoRepository, PedidoService pedidoService) {
+        this.desenvolvimentoRepository = desenvolvimentoRepository;
+        this.desenvolvimentoMapper = desenvolvimentoMapper;
+        this.clienteRepository = clienteRepository;
+        this.produtoRepository = produtoRepository;
+        this.pedidoService = pedidoService;
+    }
 
     // Busca todos os desenvolvimentos cadastrados
-    public List<Desenvolvimento> findAll() {
-        return desenvolvimentoRepository.findAll();
+    public List<DesenvolvimentoResponse> findAll() {
+        return desenvolvimentoRepository.findAll().stream().map(desenvolvimentoMapper::DesenvolvimentoToDesenvolvimentoResponse).toList();
     }
 
     // Busca um desenvolvimento pelo ID
-    public Desenvolvimento findById(Long id) {
-        return desenvolvimentoRepository.findById(id)
+    public DesenvolvimentoResponse findById(Long id) {
+        return desenvolvimentoRepository.findById(id).map(desenvolvimentoMapper::DesenvolvimentoToDesenvolvimentoResponse) // Retorna um desenvolvimento convertido para DTO
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     // Insere um novo desenvolvimento
-    public Desenvolvimento insert(Desenvolvimento desenvolvimento) {
-        desenvolvimento.setId(null);
-        return desenvolvimentoRepository.save(desenvolvimento);
+    public DesenvolvimentoResponse insert(DesenvolvimentoRequest request) {
+        Desenvolvimento desenvolvimento = desenvolvimentoMapper.requestToDesenvolvimento(request); // Converte um DesenvolvimentoRequest para Desenvolvimento
+        desenvolvimento.setId(null); // Define o ID como null para que o banco de dados gere um novo ID
+
+        if (!clienteRepository.existsById(request.clienteId())) {
+            throw new ResourceNotFoundException(request.clienteId());
+        }
+
+        if (!produtoRepository.existsById(request.produtoId())) {
+            throw new ResourceNotFoundException(request.produtoId());
+        }
+
+        Cliente cliente = clienteRepository.getReferenceById(request.clienteId());
+        Produto produto = produtoRepository.getReferenceById(request.produtoId());
+
+        desenvolvimento.setCliente(cliente);
+        desenvolvimento.setProduto(produto);
+
+        desenvolvimento = desenvolvimentoRepository.save(desenvolvimento); // Salva o Desenvolvimento no banco de dados
+        return desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento); // Converte um Desenvolvimento para DesenvolvimentoResponse
     }
 
     // Deleta um desenvolvimento pelo ID
@@ -55,30 +83,48 @@ public class DesenvolvimentoService {
     }
 
     // Atualiza um desenvolvimento existente
-    public Desenvolvimento update(Long id, Desenvolvimento desenvolvimento) {
+    public DesenvolvimentoResponse update(Long id, DesenvolvimentoRequest desenvolvimentoRequest) {
         try {
             Desenvolvimento entity = desenvolvimentoRepository.getReferenceById(id);
-            updateData(entity, desenvolvimento);
-            return desenvolvimentoRepository.save(entity);
+            updateData(entity, desenvolvimentoRequest);
+
+            if (!clienteRepository.existsById(desenvolvimentoRequest.clienteId())) {
+                throw new ResourceNotFoundException(desenvolvimentoRequest.clienteId());
+            }
+
+            if (!produtoRepository.existsById(desenvolvimentoRequest.produtoId())) {
+                throw new ResourceNotFoundException(desenvolvimentoRequest.produtoId());
+            }
+
+            Cliente cliente = clienteRepository.getReferenceById(desenvolvimentoRequest.clienteId());
+            Produto produto = produtoRepository.getReferenceById(desenvolvimentoRequest.produtoId());
+
+            entity.setCliente(cliente);
+            entity.setProduto(produto);
+
+            entity = desenvolvimentoRepository.save(entity);
+            return desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException(id);
         }
     }
 
     // Metodo auxiliar para atualizar os dados do desenvolvimento
-    private void updateData(Desenvolvimento entity, Desenvolvimento novoDesenvolvimento) {
-        entity.setTipo(novoDesenvolvimento.getTipo());
-        entity.setDataSolicitacao(novoDesenvolvimento.getDataSolicitacao());
-        entity.setStatus(novoDesenvolvimento.getStatus());
-        entity.setMotivoReprovacao(novoDesenvolvimento.getMotivoReprovacao());
-        entity.setVirouPedido(novoDesenvolvimento.getVirouPedido());
-        entity.setValorConvertido(novoDesenvolvimento.getValorConvertido());
-        entity.setDataConversao(novoDesenvolvimento.getDataConversao());
+    private void updateData(Desenvolvimento entity, DesenvolvimentoRequest novoDesenvolvimento) {
+        entity.setTipo(novoDesenvolvimento.tipo());
+        entity.setDataSolicitacao(novoDesenvolvimento.dataSolicitacao());
+        entity.setStatus(novoDesenvolvimento.status());
+        entity.setMotivoReprovacao(novoDesenvolvimento.motivoReprovacao());
+        entity.setVirouPedido(novoDesenvolvimento.virouPedido());
+        entity.setValorConvertido(novoDesenvolvimento.valorConvertido());
+        entity.setDataConversao(novoDesenvolvimento.dataConversao());
     }
 
     @Transactional
     public Pedido converterEmPedido(Long id) {
-        Desenvolvimento desenvolvimento = findById(id);
+        Desenvolvimento desenvolvimento = desenvolvimentoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(id));
+
         if (desenvolvimento.getVirouPedido() == true) {
             throw new DatabaseException("Este desenvolvimento já foi convertido em pedido.");
         }
