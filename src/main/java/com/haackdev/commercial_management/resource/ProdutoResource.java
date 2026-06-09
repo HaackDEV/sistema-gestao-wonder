@@ -4,7 +4,6 @@ import com.haackdev.commercial_management.dto.request.ProdutoRequest;
 import com.haackdev.commercial_management.dto.response.ProdutoResponse;
 import com.haackdev.commercial_management.service.ProdutoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,8 +19,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping(value = "/produtos")
 public class ProdutoResource {
 
-    @Autowired
-    private ProdutoService service;
+    private final ProdutoService service;
+
+    public ProdutoResource(ProdutoService service) {
+        this.service = service;
+    }
 
     @Operation(summary = "Busca todos os produtos", description = "Exibe o catálogo completo de todos os produtos homologados no sistema.")
     @GetMapping

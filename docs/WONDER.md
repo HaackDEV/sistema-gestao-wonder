@@ -27,13 +27,13 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 - [x]  **Etapa 1.7:** Lógica de Conversão Automática de `Desenvolvimento` -> `Pedido`.
 - [x]  **Review Técnica Sênior:** Concluída (Ver [backend_review.md](backend_review.md)).
 
-### 🚧 Fase 2: Qualidade e Refatoração (Pré-Deploy)
+### 🚧 Fase 2: Qualidade e Refatoração (Concluída para Domínios Base)
 *Objetivo: Profissionalizar o contrato da API, isolar o domínio e garantir a integridade total dos dados.*
 
-- [ ]  **Etapa 2.1:** Implementação da Camada de **DTOs** (Isolamento do Banco da API).
-- [ ]  **Etapa 2.2:** Integração do **MapStruct** para mapeamento performático.
-- [ ]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs.
-- [ ]  **Etapa 2.4:** Refatoração para **Constructor Injection** em Services e Resources.
+- [x]  **Etapa 2.1:** Implementação da Camada de **DTOs** (Isolamento do Banco da API).
+- [x]  **Etapa 2.2:** Integração do **MapStruct** para mapeamento performático.
+- [x]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs.
+- [x]  **Etapa 2.4:** Refatoração para **Constructor Injection** em Services e Resources.
 - [ ]  **Etapa 2.5:** Setup de Variáveis de Ambiente para Produção.
 
 ### 📖 Fase 3: Documentação de Qualidade e Testes (CI/CD Ready)
