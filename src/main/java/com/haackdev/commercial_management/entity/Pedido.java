@@ -41,7 +41,7 @@ public class Pedido implements Serializable {
     private String parcelas;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
 
     // Método para calcular o valor total do pedido

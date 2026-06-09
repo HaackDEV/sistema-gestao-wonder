@@ -1,48 +1,67 @@
 package com.haackdev.commercial_management.service;
 
+import com.haackdev.commercial_management.dto.request.PedidoRequest;
+import com.haackdev.commercial_management.dto.response.PedidoResponse;
+import com.haackdev.commercial_management.entity.Cliente;
 import com.haackdev.commercial_management.entity.ItemPedido;
 import com.haackdev.commercial_management.entity.Pedido;
+import com.haackdev.commercial_management.mapper.PedidoMapper;
+import com.haackdev.commercial_management.repository.ClienteRepository;
 import com.haackdev.commercial_management.repository.PedidoRepository;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
 public class PedidoService {
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final ClienteRepository clienteRepository;
+    private final PedidoMapper pedidoMapper;
+
+    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository, PedidoMapper pedidoMapper) {
+        this.pedidoRepository = pedidoRepository;
+        this.clienteRepository = clienteRepository;
+        this.pedidoMapper = pedidoMapper;
+    }
 
     // Busca todos os pedidos cadastrados
-    public List<Pedido> findAll() {
-        return pedidoRepository.findAll();
+    public List<PedidoResponse> findAll() {
+        return pedidoRepository.findAll().stream().map(pedidoMapper::pedidoToPedidoResponse)
+                .toList();
     }
 
     // Busca um pedido pelo ID
-    public Pedido findById(Long id) {
-        return pedidoRepository.findById(id)
+    public PedidoResponse findById(Long id) {
+        return pedidoRepository.findById(id).map(pedidoMapper::pedidoToPedidoResponse)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     @Transactional
     // Insere um novo pedido
-    public Pedido insert(Pedido pedido) {
-        // Garantir o vínculo bidirecional em cada item do pedido
+    public PedidoResponse insert(PedidoRequest request) {
+        Pedido pedido = pedidoMapper.requestToPedido(request);
         pedido.setId(null);
-        for (ItemPedido itemPedido : pedido.getItens()){
-            itemPedido.setId(null);
-            itemPedido.setPedido(pedido);
+
+        // Verificação de integridade do Cliente
+        if (!clienteRepository.existsById(request.clienteId())) {
+            throw new ResourceNotFoundException(request.clienteId());
         }
-        // Atribuir o valor total calculado usando a inteligência da entidade
+        Cliente cliente = clienteRepository.getReferenceById(request.clienteId());
+        pedido.setCliente(cliente);
+
+        // Vínculo bidirecional para itens
+        for (ItemPedido item : pedido.getItens()) {
+            item.setPedido(pedido);
+        }
+
         pedido.setValorTotal(pedido.getValorTotalCalculado());
-        
-        return pedidoRepository.save(pedido);
+        pedido = pedidoRepository.save(pedido);
+        return pedidoMapper.pedidoToPedidoResponse(pedido);
     }
 
     @Transactional
@@ -60,22 +79,37 @@ public class PedidoService {
 
     @Transactional
     // Atualiza um pedido existente
-    public Pedido update(Long id, Pedido pedido) {
+    public PedidoResponse update(Long id, PedidoRequest request) {
         try {
             Pedido entity = pedidoRepository.getReferenceById(id);
-            updateData(entity, pedido);
-            return pedidoRepository.save(entity);
+            updateData(entity, request);
+
+            // Verificação de integridade do Cliente
+            if (!clienteRepository.existsById(request.clienteId())) {
+                throw new ResourceNotFoundException(request.clienteId());
+            }
+            Cliente cliente = clienteRepository.getReferenceById(request.clienteId());
+            entity.setCliente(cliente);
+
+            entity.getItens().clear();
+            Pedido pedidoTemporario = pedidoMapper.requestToPedido(request);
+            for (ItemPedido novoItem : pedidoTemporario.getItens()) {
+                entity.addItem(novoItem);
+            }
+
+            entity.setValorTotal(entity.getValorTotalCalculado());
+
+            entity = pedidoRepository.save(entity);
+            return pedidoMapper.pedidoToPedidoResponse(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException(id);
         }
     }
 
-    // Metodo auxiliar para atualizar os dados do pedido
-    private void updateData(Pedido entity, Pedido novoPedido) {
-        entity.setDataPedido(novoPedido.getDataPedido());
-        entity.setValorTotal(novoPedido.getValorTotal());
-        entity.setCondicaoPagamento(novoPedido.getCondicaoPagamento());
-        entity.setParcelas(novoPedido.getParcelas());
-        entity.setCliente(novoPedido.getCliente());
+    // Método auxiliar para atualizar dados básicos
+    private void updateData(Pedido entity, PedidoRequest request) {
+        entity.setDataPedido(request.dataPedido());
+        entity.setCondicaoPagamento(request.condicaoPagamento());
+        entity.setParcelas(request.parcelas());
     }
 }

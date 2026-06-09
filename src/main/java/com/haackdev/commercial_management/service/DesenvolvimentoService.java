@@ -1,7 +1,10 @@
 package com.haackdev.commercial_management.service;
 
 import com.haackdev.commercial_management.dto.request.DesenvolvimentoRequest;
+import com.haackdev.commercial_management.dto.request.ItemPedidoRequest;
+import com.haackdev.commercial_management.dto.request.PedidoRequest;
 import com.haackdev.commercial_management.dto.response.DesenvolvimentoResponse;
+import com.haackdev.commercial_management.dto.response.PedidoResponse;
 import com.haackdev.commercial_management.entity.*;
 import com.haackdev.commercial_management.entity.enums.StatusDesenvolvimento;
 import com.haackdev.commercial_management.mapper.DesenvolvimentoMapper;
@@ -16,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DesenvolvimentoService {
@@ -121,7 +123,7 @@ public class DesenvolvimentoService {
     }
 
     @Transactional
-    public Pedido converterEmPedido(Long id) {
+    public PedidoResponse converterEmPedido(Long id) {
         Desenvolvimento desenvolvimento = desenvolvimentoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
 
@@ -133,27 +135,34 @@ public class DesenvolvimentoService {
             throw new DatabaseException("Apenas desenvolvimentos aprovados podem ser convertidos em pedido.");
         }
 
-        Pedido pedido = new Pedido();
-        pedido.setCliente(desenvolvimento.getCliente());
-        pedido.setDataPedido(LocalDate.now());
-
-        ItemPedido item = new ItemPedido();
-        item.setProduto(desenvolvimento.getProduto());
-        item.setQuantidade(1);
-        
         if (desenvolvimento.getValorConvertido() == null) {
             throw new DatabaseException("O desenvolvimento não possui um valor de conversão definido. Atualize o desenvolvimento antes de faturá-lo.");
         }
-        
-        item.setValorUnitario(desenvolvimento.getValorConvertido());
-        pedido.addItem(item);
 
-        pedido = pedidoService.insert(pedido);
+        // Criar o Item do Pedido via Request DTO
+        ItemPedidoRequest itemRequest = new ItemPedidoRequest(
+                desenvolvimento.getProduto().getId(),
+                1,
+                desenvolvimento.getValorConvertido()
+        );
 
+        // Criar o Pedido via Request DTO
+        PedidoRequest pedidoRequest = new PedidoRequest(
+                desenvolvimento.getCliente().getId(),
+                LocalDate.now(),
+                "Conversão de Desenvolvimento",
+                "1x",
+                List.of(itemRequest)
+        );
+
+        // Inserir via Service de Pedido (que agora retorna PedidoResponse)
+        PedidoResponse pedidoResponse = pedidoService.insert(pedidoRequest);
+
+        // Atualizar status do desenvolvimento
         desenvolvimento.setVirouPedido(true);
         desenvolvimento.setDataConversao(LocalDate.now());
         desenvolvimentoRepository.save(desenvolvimento);
 
-        return pedido;
+        return pedidoResponse;
     }
 }
