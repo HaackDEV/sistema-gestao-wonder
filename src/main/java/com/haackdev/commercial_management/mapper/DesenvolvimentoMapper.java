@@ -11,6 +11,11 @@ import org.mapstruct.MappingConstants;
 public interface DesenvolvimentoMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cliente.id", source = "clienteId")
+    @Mapping(target = "produto.id", source = "produtoId")
+    @Mapping(target = "virouPedido", ignore = true)
+    @Mapping(target = "valorConvertido", ignore = true)
+    @Mapping(target = "dataConversao", ignore = true)
     Desenvolvimento requestToDesenvolvimento (DesenvolvimentoRequest request); // Converte um DesenvolvimentoRequest para Desenvolvimento
 
     @Mapping(target = "clienteId", source = "cliente.id")
