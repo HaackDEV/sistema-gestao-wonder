@@ -1,6 +1,8 @@
 package com.haackdev.commercial_management.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.haackdev.commercial_management.dto.request.FornecedorRequest;
+import com.haackdev.commercial_management.dto.response.FornecedorResponse;
 import com.haackdev.commercial_management.entity.Fornecedor;
 import com.haackdev.commercial_management.service.FornecedorService;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
@@ -39,7 +41,7 @@ public class FornecedorResourceTest {
     private Long idExistente;
     private Long idInexistente;
     private Long idDependente;
-    private Fornecedor fornecedor;
+    private FornecedorRequest requestDTO;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -47,23 +49,23 @@ public class FornecedorResourceTest {
         idInexistente = 99L;
         idDependente = 2L;
 
-        fornecedor = new Fornecedor();
-        fornecedor.setId(idExistente);
-        fornecedor.setNomeFantasia("Tech Fornecedora");
+        FornecedorResponse responseDTO = new FornecedorResponse(1L, "Tech Fornecedora");
+
+        requestDTO = new FornecedorRequest("Tech Fornecedora");
 
         // FIND ALL
-        when(service.findAll()).thenReturn(List.of(fornecedor));
+        when(service.findAll()).thenReturn(List.of(responseDTO));
 
         // FIND BY ID
-        when(service.findById(idExistente)).thenReturn(fornecedor);
+        when(service.findById(idExistente)).thenReturn(responseDTO);
         when(service.findById(idInexistente)).thenThrow(ResourceNotFoundException.class);
 
         // INSERT
-        when(service.insert(any(Fornecedor.class))).thenReturn(fornecedor);
+        when(service.insert(any(FornecedorRequest.class))).thenReturn(responseDTO);
 
         // UPDATE
-        when(service.update(eq(idExistente), any(Fornecedor.class))).thenReturn(fornecedor);
-        when(service.update(eq(idInexistente), any(Fornecedor.class))).thenThrow(ResourceNotFoundException.class);
+        when(service.update(eq(idExistente), any(FornecedorRequest.class))).thenReturn(responseDTO);
+        when(service.update(eq(idInexistente), any(FornecedorRequest.class))).thenThrow(ResourceNotFoundException.class);
 
         // DELETE
         doNothing().when(service).delete(idExistente);
@@ -101,7 +103,7 @@ public class FornecedorResourceTest {
 
     @Test
     public void insertDeveRetornarStatusCreatedEFornecedor() throws Exception {
-        String corpoJson = objectMapper.writeValueAsString(fornecedor);
+        String corpoJson = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(post("/fornecedores")
                 .content(corpoJson)
@@ -127,7 +129,7 @@ public class FornecedorResourceTest {
 
     @Test
     public void updateDeveRetornarStatusOkQuandoIdExistir() throws Exception {
-        String corpoJson = objectMapper.writeValueAsString(fornecedor);
+        String corpoJson = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(put("/fornecedores/{id}", idExistente)
                 .content(corpoJson)

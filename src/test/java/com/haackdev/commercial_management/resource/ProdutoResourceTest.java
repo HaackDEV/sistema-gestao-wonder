@@ -1,7 +1,8 @@
 package com.haackdev.commercial_management.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.haackdev.commercial_management.entity.Produto;
+import com.haackdev.commercial_management.dto.request.ProdutoRequest;
+import com.haackdev.commercial_management.dto.response.ProdutoResponse;
 import com.haackdev.commercial_management.service.ProdutoService;
 import com.haackdev.commercial_management.service.exceptions.DatabaseException;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
@@ -40,7 +41,7 @@ public class ProdutoResourceTest {
     private Long idExistente;
     private Long idInexistente;
     private Long idDependente;
-    private Produto produto;
+    private ProdutoRequest requestDTO;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -48,20 +49,45 @@ public class ProdutoResourceTest {
         idInexistente = 99L;
         idDependente = 2L;
 
-        produto = new Produto();
-        produto.setId(idExistente);
-        produto.setDescricao("Camiseta Wonder");
-        produto.setValorVenda(BigDecimal.valueOf(89.90));
+        ProdutoResponse responseDTO = new ProdutoResponse(
+                idExistente,
+                "PROD-01",
+                "Camiseta Wonder",
+                "Vestuário",
+                "Azul",
+                "Algodão",
+                BigDecimal.valueOf(40.0),
+                BigDecimal.valueOf(89.90),
+                1L,
+                "Fornecedor SA"
+        );
 
-        when(service.findAll()).thenReturn(List.of(produto));
-        when(service.findById(idExistente)).thenReturn(produto);
+        requestDTO = new ProdutoRequest(
+                1L,
+                "PROD-01",
+                "Camiseta Wonder",
+                "Vestuário",
+                "Azul",
+                "Algodão",
+                BigDecimal.valueOf(40.0),
+                BigDecimal.valueOf(89.90)
+        );
+
+        // FIND ALL
+        when(service.findAll()).thenReturn(List.of(responseDTO));
+
+        // FIND BY ID
+        when(service.findById(idExistente)).thenReturn(responseDTO);
         when(service.findById(idInexistente)).thenThrow(ResourceNotFoundException.class);
 
-        when(service.insert(any(Produto.class))).thenReturn(produto);
+        // INSERT
+        when(service.insert(any(ProdutoRequest.class))).thenReturn(responseDTO);
 
-        when(service.update(eq(idExistente), any(Produto.class))).thenReturn(produto);
-        when(service.update(eq(idInexistente), any(Produto.class))).thenThrow(ResourceNotFoundException.class);
+        // UPDATE
+        when(service.update(eq(idExistente), any(ProdutoRequest.class))).thenReturn(responseDTO);
+        when(service.update(eq(idInexistente), any(ProdutoRequest.class))).thenThrow(ResourceNotFoundException.class);
 
+        // DELETE
         doNothing().when(service).delete(idExistente);
         doThrow(ResourceNotFoundException.class).when(service).delete(idInexistente);
         doThrow(DatabaseException.class).when(service).delete(idDependente);
@@ -75,6 +101,7 @@ public class ProdutoResourceTest {
         resultado.andExpect(status().isOk());
         resultado.andExpect(jsonPath("$[0].id").value(idExistente));
         resultado.andExpect(jsonPath("$[0].descricao").value("Camiseta Wonder"));
+        resultado.andExpect(jsonPath("$[0].fornecedorNomeFantasia").value("Fornecedor SA"));
     }
 
     @Test
@@ -97,7 +124,7 @@ public class ProdutoResourceTest {
 
     @Test
     public void insertDeveRetornarCreatedEProduto() throws Exception {
-        String jsonBody = objectMapper.writeValueAsString(produto);
+        String jsonBody = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(post("/produtos")
                 .content(jsonBody)
@@ -105,6 +132,7 @@ public class ProdutoResourceTest {
                 .accept(MediaType.APPLICATION_JSON));
 
         resultado.andExpect(status().isCreated());
+        resultado.andExpect(header().exists("Location"));
         resultado.andExpect(jsonPath("$.id").value(idExistente));
     }
 
@@ -122,7 +150,7 @@ public class ProdutoResourceTest {
 
     @Test
     public void updateDeveRetornarOkQuandoIdExistir() throws Exception {
-        String jsonBody = objectMapper.writeValueAsString(produto);
+        String jsonBody = objectMapper.writeValueAsString(requestDTO);
 
         ResultActions resultado = mockMvc.perform(put("/produtos/{id}", idExistente)
                 .content(jsonBody)
