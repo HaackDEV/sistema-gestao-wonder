@@ -1,7 +1,14 @@
 package com.haackdev.commercial_management.service;
 
+import com.haackdev.commercial_management.dto.request.ItemPedidoRequest;
+import com.haackdev.commercial_management.dto.request.PedidoRequest;
+import com.haackdev.commercial_management.dto.response.ItemPedidoResponse;
+import com.haackdev.commercial_management.dto.response.PedidoResponse;
+import com.haackdev.commercial_management.entity.Cliente;
 import com.haackdev.commercial_management.entity.ItemPedido;
 import com.haackdev.commercial_management.entity.Pedido;
+import com.haackdev.commercial_management.mapper.PedidoMapper;
+import com.haackdev.commercial_management.repository.ClienteRepository;
 import com.haackdev.commercial_management.repository.PedidoRepository;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,20 +22,28 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Testes Unitários da Camada de Serviço para a entidade Pedido.
- * Usa Mockito para isolar a lógica de negócio das dependências de banco de dados.
+ * Refatorado para o padrão DTO.
  */
 @ExtendWith(MockitoExtension.class)
 public class PedidoServiceTest {
 
     @Mock
-    private PedidoRepository repository;
+    private PedidoRepository pedidoRepository;
+
+    @Mock
+    private ClienteRepository clienteRepository;
+
+    @Mock
+    private PedidoMapper pedidoMapper;
 
     @InjectMocks
     private PedidoService service;
@@ -36,26 +51,38 @@ public class PedidoServiceTest {
     private Long idExistente;
     private Long idInexistente;
     private Pedido pedido;
-    private ItemPedido item;
+    private Cliente cliente;
+    private PedidoRequest requestDTO;
+    private PedidoResponse responseDTO;
 
-    /**
-     * Preparação inicial, ocorre ANTES de cada método de teste ser executado.
-     * Serve para configurar os cenários comuns de Mock.
-     */
     @BeforeEach
     void setUp() throws Exception {
         idExistente = 1L;
-        idInexistente = 2L;
-        
+        idInexistente = 99L;
+
+        cliente = new Cliente();
+        cliente.setId(10L);
+        cliente.setNomeFantasia("Cliente Teste");
+
         pedido = new Pedido();
         pedido.setId(idExistente);
-        
-        item = new ItemPedido();
-        item.setId(10L);
+        pedido.setCliente(cliente);
+
+        ItemPedido item = new ItemPedido();
+        item.setId(20L);
         item.setQuantidade(2);
         item.setValorUnitario(new BigDecimal("50.00"));
-        
         pedido.addItem(item);
+
+        ItemPedidoRequest itemRequest = new ItemPedidoRequest(30L, 2, new BigDecimal("50.00"));
+        requestDTO = new PedidoRequest(
+                10L, LocalDate.now(), "Boleto", "1x", List.of(itemRequest)
+        );
+
+        ItemPedidoResponse itemResponse = new ItemPedidoResponse(20L, 30L, "Produto Teste", 2, new BigDecimal("50.00"), new BigDecimal("100.00"));
+        responseDTO = new PedidoResponse(
+                idExistente, 10L, "Cliente Teste", LocalDate.now(), new BigDecimal("100.00"), "Boleto", "1x", List.of(itemResponse)
+        );
     }
 
     // -------------------------------------------------------------
@@ -63,35 +90,30 @@ public class PedidoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void findAllDeveRetornarLista() {
-        // ARRANGE
-        Mockito.when(repository.findAll()).thenReturn(List.of(pedido));
+    public void findAllDeveRetornarListaDePedidoResponse() {
+        Mockito.when(pedidoRepository.findAll()).thenReturn(List.of(pedido));
+        Mockito.when(pedidoMapper.pedidoToPedidoResponse(pedido)).thenReturn(responseDTO);
         
-        // ACT
-        List<Pedido> result = service.findAll();
+        List<PedidoResponse> result = service.findAll();
         
-        // ASSERT
         Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(idExistente, result.get(0).id());
     }
 
     @Test
-    public void findByIdDeveRetornarPedidoQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.findById(idExistente)).thenReturn(Optional.of(pedido));
+    public void findByIdDeveRetornarPedidoResponseQuandoIdExistir() {
+        Mockito.when(pedidoRepository.findById(idExistente)).thenReturn(Optional.of(pedido));
+        Mockito.when(pedidoMapper.pedidoToPedidoResponse(pedido)).thenReturn(responseDTO);
         
-        // ACT
-        Pedido result = service.findById(idExistente);
+        PedidoResponse result = service.findById(idExistente);
         
-        // ASSERT
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(idExistente, result.id());
     }
 
     @Test
     public void findByIdDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
-        // ARRANGE
-        Mockito.when(repository.findById(idInexistente)).thenReturn(Optional.empty());
-        
-        // ACT & ASSERT
+        Mockito.when(pedidoRepository.findById(idInexistente)).thenReturn(Optional.empty());
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(idInexistente));
     }
 
@@ -100,29 +122,26 @@ public class PedidoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void insertDeveCalcularTotalEConfigurarItens() {
-        // ARRANGE
-        Mockito.when(repository.save(any())).thenReturn(pedido);
+    public void insertDeveSalvarERetornarPedidoResponse() {
+        Mockito.when(pedidoMapper.requestToPedido(any())).thenReturn(pedido);
+        Mockito.when(clienteRepository.existsById(10L)).thenReturn(true);
+        Mockito.when(clienteRepository.getReferenceById(10L)).thenReturn(cliente);
+        Mockito.when(pedidoRepository.save(any())).thenReturn(pedido);
+        Mockito.when(pedidoMapper.pedidoToPedidoResponse(any())).thenReturn(responseDTO);
         
-        // Criando um pedido novo (id null) para simular inserção
-        Pedido novoPedido = new Pedido();
-        ItemPedido novoItem = new ItemPedido();
-        novoItem.setId(99L);
-        novoItem.setQuantidade(3);
-        novoItem.setValorUnitario(new BigDecimal("10.00"));
-        novoPedido.addItem(novoItem);
+        PedidoResponse result = service.insert(requestDTO);
         
-        // ACT
-        Pedido result = service.insert(novoPedido);
-        
-        // ASSERT
         Assertions.assertNotNull(result);
-        Assertions.assertNull(novoPedido.getId()); // O service deve garantir id null para novos registros
-        Assertions.assertNull(novoItem.getId()); // O service deve garantir id null nos itens
-        Assertions.assertEquals(new BigDecimal("30.00"), novoPedido.getValorTotal()); // 3 * 10
-        Assertions.assertEquals(novoPedido, novoItem.getPedido()); // Vínculo bidirecional verificado
-        
-        Mockito.verify(repository).save(novoPedido);
+        Assertions.assertEquals(idExistente, result.id());
+        Mockito.verify(pedidoRepository).save(any());
+    }
+
+    @Test
+    public void insertDeveLancarResourceNotFoundExceptionQuandoClienteNaoExistir() {
+        Mockito.when(pedidoMapper.requestToPedido(any())).thenReturn(pedido);
+        Mockito.when(clienteRepository.existsById(10L)).thenReturn(false);
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(requestDTO));
     }
 
     // -------------------------------------------------------------
@@ -131,12 +150,16 @@ public class PedidoServiceTest {
 
     @Test
     public void deleteDeveNaoFazerNadaQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.existsById(idExistente)).thenReturn(true);
-        Mockito.doNothing().when(repository).deleteById(idExistente);
+        Mockito.when(pedidoRepository.existsById(idExistente)).thenReturn(true);
+        Mockito.doNothing().when(pedidoRepository).deleteById(idExistente);
         
-        // ACT & ASSERT
         Assertions.assertDoesNotThrow(() -> service.delete(idExistente));
+    }
+
+    @Test
+    public void deleteDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
+        Mockito.when(pedidoRepository.existsById(idInexistente)).thenReturn(false);
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.delete(idInexistente));
     }
 
     // -------------------------------------------------------------
@@ -144,24 +167,23 @@ public class PedidoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void updateDeveRetornarPedidoQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.getReferenceById(idExistente)).thenReturn(pedido);
-        Mockito.when(repository.save(any())).thenReturn(pedido);
+    public void updateDeveRetornarPedidoResponseQuandoIdExistir() {
+        Mockito.when(pedidoRepository.getReferenceById(idExistente)).thenReturn(pedido);
+        Mockito.when(clienteRepository.existsById(10L)).thenReturn(true);
+        Mockito.when(clienteRepository.getReferenceById(10L)).thenReturn(cliente);
+        Mockito.when(pedidoMapper.requestToPedido(any())).thenReturn(pedido);
+        Mockito.when(pedidoRepository.save(any())).thenReturn(pedido);
+        Mockito.when(pedidoMapper.pedidoToPedidoResponse(any())).thenReturn(responseDTO);
         
-        // ACT
-        Pedido result = service.update(idExistente, pedido);
+        PedidoResponse result = service.update(idExistente, requestDTO);
         
-        // ASSERT
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(idExistente, result.id());
     }
 
     @Test
     public void updateDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
-        // ARRANGE
-        Mockito.when(repository.getReferenceById(idInexistente)).thenThrow(EntityNotFoundException.class);
-        
-        // ACT & ASSERT
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(idInexistente, pedido));
+        Mockito.when(pedidoRepository.getReferenceById(idInexistente)).thenThrow(EntityNotFoundException.class);
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(idInexistente, requestDTO));
     }
 }

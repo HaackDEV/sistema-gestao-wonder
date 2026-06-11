@@ -1,6 +1,11 @@
 package com.haackdev.commercial_management.service;
 
+import com.haackdev.commercial_management.dto.request.ProdutoRequest;
+import com.haackdev.commercial_management.dto.response.ProdutoResponse;
+import com.haackdev.commercial_management.entity.Fornecedor;
 import com.haackdev.commercial_management.entity.Produto;
+import com.haackdev.commercial_management.mapper.ProdutoMapper;
+import com.haackdev.commercial_management.repository.FornecedorRepository;
 import com.haackdev.commercial_management.repository.ProdutoRepository;
 import com.haackdev.commercial_management.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,20 +18,28 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Testes Unitários da Camada de Serviço para a entidade Produto.
- * Usa Mockito para isolar a lógica de negócio das dependências de banco de dados.
+ * Refatorado para o padrão DTO.
  */
 @ExtendWith(MockitoExtension.class)
 public class ProdutoServiceTest {
 
     @Mock
-    private ProdutoRepository repository;
+    private ProdutoRepository produtoRepository;
+
+    @Mock
+    private ProdutoMapper produtoMapper;
+
+    @Mock
+    private FornecedorRepository fornecedorRepository;
 
     @InjectMocks
     private ProdutoService service;
@@ -34,18 +47,31 @@ public class ProdutoServiceTest {
     private Long idExistente;
     private Long idInexistente;
     private Produto produto;
+    private Fornecedor fornecedor;
+    private ProdutoRequest requestDTO;
+    private ProdutoResponse responseDTO;
 
-    /**
-     * Preparação inicial, ocorre ANTES de cada método de teste ser executado.
-     * Serve para configurar os cenários comuns de Mock.
-     */
     @BeforeEach
     void setUp() throws Exception {
         idExistente = 1L;
-        idInexistente = 2L;
+        idInexistente = 99L;
+
+        fornecedor = new Fornecedor();
+        fornecedor.setId(10L);
+        fornecedor.setNomeFantasia("Fornecedor Teste");
+
         produto = new Produto();
         produto.setId(idExistente);
         produto.setDescricao("Produto Teste");
+        produto.setFornecedor(fornecedor);
+
+        requestDTO = new ProdutoRequest(
+                10L, "PROD-01", "Produto Teste", "Amostra", "Azul", "Algodão", new BigDecimal("10.00"), new BigDecimal("20.00")
+        );
+
+        responseDTO = new ProdutoResponse(
+                idExistente, "PROD-01", "Produto Teste", "Amostra", "Azul", "Algodão", new BigDecimal("10.00"), new BigDecimal("20.00"), 10L, "Fornecedor Teste"
+        );
     }
 
     // -------------------------------------------------------------
@@ -53,35 +79,30 @@ public class ProdutoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void findAllDeveRetornarLista() {
-        // ARRANGE
-        Mockito.when(repository.findAll()).thenReturn(List.of(produto));
+    public void findAllDeveRetornarListaDeProdutoResponse() {
+        Mockito.when(produtoRepository.findAll()).thenReturn(List.of(produto));
+        Mockito.when(produtoMapper.ProdutoToProdutoResponse(produto)).thenReturn(responseDTO);
         
-        // ACT
-        List<Produto> result = service.findAll();
+        List<ProdutoResponse> result = service.findAll();
         
-        // ASSERT
         Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(idExistente, result.get(0).id());
     }
 
     @Test
-    public void findByIdDeveRetornarProdutoQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.findById(idExistente)).thenReturn(Optional.of(produto));
+    public void findByIdDeveRetornarProdutoResponseQuandoIdExistir() {
+        Mockito.when(produtoRepository.findById(idExistente)).thenReturn(Optional.of(produto));
+        Mockito.when(produtoMapper.ProdutoToProdutoResponse(produto)).thenReturn(responseDTO);
         
-        // ACT
-        Produto result = service.findById(idExistente);
+        ProdutoResponse result = service.findById(idExistente);
         
-        // ASSERT
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(idExistente, result.id());
     }
 
     @Test
     public void findByIdDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
-        // ARRANGE
-        Mockito.when(repository.findById(idInexistente)).thenReturn(Optional.empty());
-        
-        // ACT & ASSERT
+        Mockito.when(produtoRepository.findById(idInexistente)).thenReturn(Optional.empty());
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(idInexistente));
     }
 
@@ -90,16 +111,26 @@ public class ProdutoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void insertDeveSalvarEGerarIdNull() {
-        // ARRANGE
-        Mockito.when(repository.save(any())).thenReturn(produto);
+    public void insertDeveSalvarERetornarProdutoResponse() {
+        Mockito.when(produtoMapper.requestToProduto(any())).thenReturn(produto);
+        Mockito.when(fornecedorRepository.existsById(10L)).thenReturn(true);
+        Mockito.when(fornecedorRepository.getReferenceById(10L)).thenReturn(fornecedor);
+        Mockito.when(produtoRepository.save(any())).thenReturn(produto);
+        Mockito.when(produtoMapper.ProdutoToProdutoResponse(any())).thenReturn(responseDTO);
         
-        // ACT
-        Produto result = service.insert(new Produto());
+        ProdutoResponse result = service.insert(requestDTO);
         
-        // ASSERT
         Assertions.assertNotNull(result);
-        Mockito.verify(repository).save(any());
+        Assertions.assertEquals(idExistente, result.id());
+        Mockito.verify(produtoRepository).save(any());
+    }
+
+    @Test
+    public void insertDeveLancarResourceNotFoundExceptionQuandoFornecedorNaoExistir() {
+        Mockito.when(produtoMapper.requestToProduto(any())).thenReturn(produto);
+        Mockito.when(fornecedorRepository.existsById(10L)).thenReturn(false);
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.insert(requestDTO));
     }
 
     // -------------------------------------------------------------
@@ -108,20 +139,15 @@ public class ProdutoServiceTest {
 
     @Test
     public void deleteDeveNaoFazerNadaQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.existsById(idExistente)).thenReturn(true);
-        Mockito.doNothing().when(repository).deleteById(idExistente);
+        Mockito.when(produtoRepository.existsById(idExistente)).thenReturn(true);
+        Mockito.doNothing().when(produtoRepository).deleteById(idExistente);
         
-        // ACT & ASSERT
         Assertions.assertDoesNotThrow(() -> service.delete(idExistente));
     }
 
     @Test
     public void deleteDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
-        // ARRANGE
-        Mockito.when(repository.existsById(idInexistente)).thenReturn(false);
-        
-        // ACT & ASSERT
+        Mockito.when(produtoRepository.existsById(idInexistente)).thenReturn(false);
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.delete(idInexistente));
     }
 
@@ -130,24 +156,22 @@ public class ProdutoServiceTest {
     // -------------------------------------------------------------
 
     @Test
-    public void updateDeveRetornarProdutoQuandoIdExistir() {
-        // ARRANGE
-        Mockito.when(repository.getReferenceById(idExistente)).thenReturn(produto);
-        Mockito.when(repository.save(any())).thenReturn(produto);
+    public void updateDeveRetornarProdutoResponseQuandoIdExistir() {
+        Mockito.when(produtoRepository.getReferenceById(idExistente)).thenReturn(produto);
+        Mockito.when(fornecedorRepository.existsById(10L)).thenReturn(true);
+        Mockito.when(fornecedorRepository.getReferenceById(10L)).thenReturn(fornecedor);
+        Mockito.when(produtoRepository.save(any())).thenReturn(produto);
+        Mockito.when(produtoMapper.ProdutoToProdutoResponse(any())).thenReturn(responseDTO);
         
-        // ACT
-        Produto result = service.update(idExistente, produto);
+        ProdutoResponse result = service.update(idExistente, requestDTO);
         
-        // ASSERT
         Assertions.assertNotNull(result);
+        Assertions.assertEquals(idExistente, result.id());
     }
 
     @Test
     public void updateDeveLancarResourceNotFoundExceptionQuandoIdNaoExistir() {
-        // ARRANGE
-        Mockito.when(repository.getReferenceById(idInexistente)).thenThrow(EntityNotFoundException.class);
-        
-        // ACT & ASSERT
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(idInexistente, produto));
+        Mockito.when(produtoRepository.getReferenceById(idInexistente)).thenThrow(EntityNotFoundException.class);
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> service.update(idInexistente, requestDTO));
     }
 }
