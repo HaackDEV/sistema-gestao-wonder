@@ -32,7 +32,7 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 
 - [x]  **Etapa 2.1:** Implementação da Camada de **DTOs** (Isolamento do Banco da API).
 - [x]  **Etapa 2.2:** Integração do **MapStruct** para mapeamento performático.
-- [x]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs.
+- [x]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs e Tratamento Global de Exceções 422.
 - [x]  **Etapa 2.4:** Refatoração para **Constructor Injection** em Services e Resources.
 - [ ]  **Etapa 2.5:** Setup de Variáveis de Ambiente para Produção.
 
@@ -41,7 +41,7 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 
 - [x]  Configurar Springdoc Swagger UI (Documentação Interativa).
 - [x]  Testes de Unidade (`Service Layer`).
-- [x]  Testes de Integração (`Controller Layer`).
+- [x]  Testes de Integração (`Controller Layer` com `@WebMvcTest`).
 - [ ]  Documentação de Schemas OpenAPI detalhados.
 
 ### 🚀 Fase 4: Implantação e Nuvem (Cloud Architecture)
@@ -56,6 +56,13 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 - [ ]  Setup React (Vite) + Tailwind CSS.
 - [ ]  Integração com a API Backend (Axios).
 - [ ]  Dashboard de Operações e Gestora Comercial.
+
+### 🛡️ Fase 6: Segurança e Melhorias Contínuas (Pós-Lançamento)
+*Objetivo: Elevar a arquitetura do projeto para padrões corporativos após a primeira versão estar no ar.*
+
+- [ ] Implementação de Segurança com **Spring Security** e tokens **JWT**.
+- [ ] Controle de acesso baseado em Roles (Admin vs Representante).
+- [ ] Versionamento estrutural de Banco de Dados com **Flyway**.
 
 ---
 
