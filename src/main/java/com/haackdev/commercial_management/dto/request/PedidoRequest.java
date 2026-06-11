@@ -1,5 +1,6 @@
 package com.haackdev.commercial_management.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ public record PedidoRequest(
     String condicaoPagamento,
     String parcelas,
     @NotEmpty(message = "O pedido deve conter pelo menos um item")
+    @Valid
     List<ItemPedidoRequest> itens
 ) {
 }
