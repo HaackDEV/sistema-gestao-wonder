@@ -3,7 +3,6 @@ package com.haackdev.commercial_management.config;
 import com.haackdev.commercial_management.entity.*;
 import com.haackdev.commercial_management.entity.enums.StatusDesenvolvimento;
 import com.haackdev.commercial_management.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,25 +12,28 @@ import java.util.Arrays;
 
 @Configuration
 @org.springframework.context.annotation.Profile("!test")
-public class TestConfig implements CommandLineRunner {
+public class DataSeedConfig implements CommandLineRunner {
 
-    @Autowired
-    private FornecedorRepository fornecedorRepository;
+    private final FornecedorRepository fornecedorRepository;
 
-    @Autowired
-    private ProdutoRepository produtoRepository;
+    private final ProdutoRepository produtoRepository;
 
-    @Autowired
-    private ClienteRepository clienteRepository;
+    private final ClienteRepository clienteRepository;
 
-    @Autowired
-    private DesenvolvimentoRepository desenvolvimentoRepository;
+    private final DesenvolvimentoRepository desenvolvimentoRepository;
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
+    private final PedidoRepository pedidoRepository;
 
-    @Autowired
-    private ItemPedidoRepository itemPedidoRepository;
+    private final ItemPedidoRepository itemPedidoRepository;
+
+    public DataSeedConfig(FornecedorRepository fornecedorRepository, ProdutoRepository produtoRepository, ClienteRepository clienteRepository, DesenvolvimentoRepository desenvolvimentoRepository, PedidoRepository pedidoRepository, ItemPedidoRepository itemPedidoRepository) {
+        this.fornecedorRepository = fornecedorRepository;
+        this.produtoRepository = produtoRepository;
+        this.clienteRepository = clienteRepository;
+        this.desenvolvimentoRepository = desenvolvimentoRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.itemPedidoRepository = itemPedidoRepository;
+    }
 
     @Override
     public void run(String... args) throws Exception {
