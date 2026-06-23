@@ -170,12 +170,13 @@ public class DesenvolvimentoResourceTest {
     // --- TESTES DO ENDPOINT PERSONALIZADO ---
 
     @Test
-    public void converterEmPedidoDeveRetornarPedidoEStatusOkQuandoIdExistir() throws Exception {
+    public void converterEmPedidoDeveRetornarPedidoEStatus201QuandoIdExistir() throws Exception {
         ResultActions resultado = mockMvc.perform(post("/desenvolvimentos/{id}/converter-em-pedido", idExistente)
                 .accept(MediaType.APPLICATION_JSON));
 
-        resultado.andExpect(status().isOk()); 
-        resultado.andExpect(jsonPath("$.id").value(10L)); 
+        resultado.andExpect(status().isCreated());
+        resultado.andExpect(header().exists("Location"));
+        resultado.andExpect(jsonPath("$.id").value(10L));
     }
 
     @Test

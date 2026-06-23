@@ -69,6 +69,13 @@ public class DesenvolvimentoResource {
     @PostMapping("/{id}/converter-em-pedido")
     public ResponseEntity<PedidoResponse> converterEmPedido(@PathVariable Long id) {
         PedidoResponse pedido = service.converterEmPedido(id);
-        return ResponseEntity.ok().body(pedido);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .replacePath("/pedidos/{id}")
+                .buildAndExpand(pedido.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(pedido);
     }
 }
