@@ -118,7 +118,7 @@ public class DesenvolvimentoServiceTest {
     public void findAllDeveRetornarListaDeDesenvolvimentoResponse() {
         // ARRANGE
         Mockito.when(desenvolvimentoRepository.findAll()).thenReturn(List.of(desenvolvimento));
-        Mockito.when(desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
+        Mockito.when(desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
 
         // ACT
         List<DesenvolvimentoResponse> result = service.findAll();
@@ -133,7 +133,7 @@ public class DesenvolvimentoServiceTest {
     public void findByIdDeveRetornarDesenvolvimentoResponseQuandoIdExistir() {
         // ARRANGE
         Mockito.when(desenvolvimentoRepository.findById(idExistente)).thenReturn(Optional.of(desenvolvimento));
-        Mockito.when(desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
+        Mockito.when(desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
 
         // ACT
         DesenvolvimentoResponse result = service.findById(idExistente);
@@ -165,7 +165,7 @@ public class DesenvolvimentoServiceTest {
         Mockito.when(produtoRepository.getReferenceById(20L)).thenReturn(produto);
         
         Mockito.when(desenvolvimentoRepository.save(any())).thenReturn(desenvolvimento);
-        Mockito.when(desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
+        Mockito.when(desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
 
         // ACT
         DesenvolvimentoResponse result = service.insert(desenvolvimentoRequest);
@@ -199,7 +199,7 @@ public class DesenvolvimentoServiceTest {
         Mockito.when(produtoRepository.getReferenceById(20L)).thenReturn(produto);
         
         Mockito.when(desenvolvimentoRepository.save(any())).thenReturn(desenvolvimento);
-        Mockito.when(desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
+        Mockito.when(desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(desenvolvimento)).thenReturn(desenvolvimentoResponse);
 
         // ACT
         DesenvolvimentoResponse result = service.update(idExistente, desenvolvimentoRequest);

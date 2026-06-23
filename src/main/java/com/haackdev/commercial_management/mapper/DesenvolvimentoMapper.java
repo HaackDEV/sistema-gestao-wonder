@@ -23,5 +23,5 @@ public interface DesenvolvimentoMapper {
     @Mapping(target = "produtoId", source = "produto.id")
     @Mapping(target = "codigoProduto", source = "produto.codigoProduto")
     @Mapping(target = "descricaoProduto", source = "produto.descricao")
-    DesenvolvimentoResponse DesenvolvimentoToDesenvolvimentoResponse (Desenvolvimento Desenvolvimento);// Converte um Desenvolvimento para DesenvolvimentoResponse
+    DesenvolvimentoResponse desenvolvimentoToDesenvolvimentoResponse(Desenvolvimento Desenvolvimento);// Converte um Desenvolvimento para DesenvolvimentoResponse
 }

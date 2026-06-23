@@ -39,12 +39,12 @@ public class DesenvolvimentoService {
 
     // Busca todos os desenvolvimentos cadastrados
     public List<DesenvolvimentoResponse> findAll() {
-        return desenvolvimentoRepository.findAll().stream().map(desenvolvimentoMapper::DesenvolvimentoToDesenvolvimentoResponse).toList();
+        return desenvolvimentoRepository.findAll().stream().map(desenvolvimentoMapper::desenvolvimentoToDesenvolvimentoResponse).toList();
     }
 
     // Busca um desenvolvimento pelo ID
     public DesenvolvimentoResponse findById(Long id) {
-        return desenvolvimentoRepository.findById(id).map(desenvolvimentoMapper::DesenvolvimentoToDesenvolvimentoResponse) // Retorna um desenvolvimento convertido para DTO
+        return desenvolvimentoRepository.findById(id).map(desenvolvimentoMapper::desenvolvimentoToDesenvolvimentoResponse) // Retorna um desenvolvimento convertido para DTO
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
@@ -68,7 +68,7 @@ public class DesenvolvimentoService {
         desenvolvimento.setProduto(produto);
 
         desenvolvimento = desenvolvimentoRepository.save(desenvolvimento); // Salva o Desenvolvimento no banco de dados
-        return desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(desenvolvimento); // Converte um Desenvolvimento para DesenvolvimentoResponse
+        return desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(desenvolvimento); // Converte um Desenvolvimento para DesenvolvimentoResponse
     }
 
     // Deleta um desenvolvimento pelo ID
@@ -105,7 +105,7 @@ public class DesenvolvimentoService {
             entity.setProduto(produto);
 
             entity = desenvolvimentoRepository.save(entity);
-            return desenvolvimentoMapper.DesenvolvimentoToDesenvolvimentoResponse(entity);
+            return desenvolvimentoMapper.desenvolvimentoToDesenvolvimentoResponse(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException(id);
         }
