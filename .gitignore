@@ -16,4 +16,3 @@ Thumbs.db
 
 # Local env/config
 .env
-src/main/resources/application.properties
