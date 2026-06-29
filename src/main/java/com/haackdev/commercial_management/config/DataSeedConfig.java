@@ -38,6 +38,11 @@ public class DataSeedConfig implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        if (clienteRepository.count() > 0) {
+            System.out.println("Banco já populado, seed ignorado.");
+            return;
+        }
+
         // --- FORNECEDORES ---
         Fornecedor f1 = new Fornecedor(null, "Alpargatas S/A");
         Fornecedor f2 = new Fornecedor(null, "Nike Brasil");
