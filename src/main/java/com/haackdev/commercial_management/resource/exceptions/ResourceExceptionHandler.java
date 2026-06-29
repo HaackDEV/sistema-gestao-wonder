@@ -52,4 +52,12 @@ public class ResourceExceptionHandler {
         
         return ResponseEntity.status(status).body(err);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<StandardError> genericException(Exception e, HttpServletRequest request) {
+        String error = "Erro interno no servidor";
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
 }
