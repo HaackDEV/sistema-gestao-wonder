@@ -1,4 +1,4 @@
-# Guia de Desenvolvimento — WONDER (Back-end)
+# Guia de Desenvolvimento — CommerceFlow (Back-end)
 
 Este documento é o guia principal para desenvolvedores que vão ler e escrever código neste repositório. Ele complementa o `README.md` com foco estritamente técnico: arquitetura, padrões adotados, convenções, fluxo de desenvolvimento e exemplos práticos.
 

@@ -5,7 +5,7 @@
 
 # Análise Técnica e Revisão de Código - Backend MVP
 
-Este documento registra a revisão técnica realizada no estágio final da Fase 1 (Fundação) do projeto WONDER. O objetivo é estabelecer diretrizes de qualidade, identificar pontos de refatoração necessários e alinhar o projeto a padrões de mercado.
+Este documento registra a revisão técnica realizada no estágio final da Fase 1 (Fundação) do projeto CommerceFlow. O objetivo é estabelecer diretrizes de qualidade, identificar pontos de refatoração necessários e alinhar o projeto a padrões de mercado.
 
 ## 1. Arquitetura e Design REST
 
@@ -50,3 +50,7 @@ Este documento registra a revisão técnica realizada no estágio final da Fase 
 2.  **Validação de Bean**: Garantir a higiene dos dados.
 3.  **Injeção por Construtor**: Estabilidade e testabilidade.
 4.  **Testes de Integração**: Expandir a cobertura para cenários de erro detalhados.
+
+---
+
+> ✅ **Status Atualizado:** Todas as refatorações arquiteturais sugeridas acima foram **concluídas com sucesso**. O sistema agora opera com DTOs (via MapStruct), validações completas (Jakarta Validation), Injeção via Construtor e Tratamento Global de Exceções.

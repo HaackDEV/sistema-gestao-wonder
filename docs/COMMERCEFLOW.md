@@ -1,10 +1,10 @@
-# WONDER - Master Roadmap 🗺️
+# CommerceFlow - Master Roadmap 
 
-Este documento centraliza o planejamento estratégico, as diretrizes de engenharia e o progresso do desenvolvimento do sistema **WONDER**.
+Este documento centraliza o planejamento estratégico, as diretrizes de engenharia e o progresso do desenvolvimento do sistema **CommerceFlow**.
 
 ---
 
-## 🏗️ Filosofia de Desenvolvimento e Stack
+##  Filosofia de Desenvolvimento e Stack
 
 - **Linguagem:** Java 25 (Funcionalidades modernas da JVM)
 - **Framework:** Spring Boot 4.0.3 (Ecossistema Spring de última geração)
@@ -15,7 +15,7 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 
 ## 📈 Roadmap de Entrega
 
-### ✅ Fase 1: Fundação Backend (MVP Funcional)
+### Fase 1: Fundação Backend (MVP Funcional)
 *Objetivo: Estabelecer a persistência e as operações básicas (CRUD) de todos os domínios essenciais.*
 
 - [x]  **Etapa 1.1:** Setup de infraestrutura (Postgres + Hibernate + Docker).
@@ -27,16 +27,16 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 - [x]  **Etapa 1.7:** Lógica de Conversão Automática de `Desenvolvimento` -> `Pedido`.
 - [x]  **Review Técnica Sênior:** Concluída (Ver [backend_review.md](backend_review.md)).
 
-### 🚧 Fase 2: Qualidade e Refatoração (Concluída para Domínios Base)
+### Fase 2: Qualidade e Refatoração (Concluída para Domínios Base)
 *Objetivo: Profissionalizar o contrato da API, isolar o domínio e garantir a integridade total dos dados.*
 
 - [x]  **Etapa 2.1:** Implementação da Camada de **DTOs** (Isolamento do Banco da API).
 - [x]  **Etapa 2.2:** Integração do **MapStruct** para mapeamento performático.
 - [x]  **Etapa 2.3:** Implementação do **Bean Validation** em todos os inputs e Tratamento Global de Exceções 422.
 - [x]  **Etapa 2.4:** Refatoração para **Constructor Injection** em Services e Resources.
-- [ ]  **Etapa 2.5:** Setup de Variáveis de Ambiente para Produção.
+- [x]  **Etapa 2.5:** Setup de Variáveis de Ambiente para Produção.
 
-### 📖 Fase 3: Documentação de Qualidade e Testes (CI/CD Ready)
+### Fase 3: Documentação de Qualidade e Testes (CI/CD Ready)
 *Objetivo: Alcançar cobertura de testes e documentação de integração completa.*
 
 - [x]  Configurar Springdoc Swagger UI (Documentação Interativa).
@@ -44,24 +44,26 @@ Este documento centraliza o planejamento estratégico, as diretrizes de engenhar
 - [x]  Testes de Integração (`Controller Layer` com `@WebMvcTest`).
 - [ ]  Documentação de Schemas OpenAPI detalhados.
 
-### 🚀 Fase 4: Implantação e Nuvem (Cloud Architecture)
-*Objetivo: Publicar a API em ambiente escalável.*
+###  Fase 3: Segurança (Spring Security & JWT) - *[NEXT]*
+*Objetivo: Elevar a arquitetura do projeto para padrões corporativos, protegendo endpoints antes da integração com o front.*
 
-- [ ]  Migração do PostgreSQL para nuvem (Supabase/Neon).
-- [ ]  Deploy automático (CI/CD) no Railway ou Render.
+- [ ] Setup do **Spring Security**.
+- [ ] Autenticação Stateless com **Tokens JWT**.
+- [ ] Controle de rotas públicas (ex: Swagger, Login) e rotas protegidas (API).
+- [ ] Controle de acesso baseado em Roles (ex: Admin vs Representante).
 
-### 🖥️ Fase 5: Interface Gráfica (Frontend React)
-*Objetivo: Dar vida ao sistema com uma UI moderna e responsiva.*
+###  Fase 4: Interface Gráfica (Frontend)
+*Objetivo: Dar vida ao sistema com uma UI moderna e responsiva consumindo a API segura.*
 
-- [ ]  Setup React (Vite) + Tailwind CSS.
-- [ ]  Integração com a API Backend (Axios).
-- [ ]  Dashboard de Operações e Gestora Comercial.
+- [ ] Setup React (Vite) / Next.js + Tailwind CSS.
+- [ ] Integração com a API Backend via Axios (com interceptors para o JWT).
+- [ ] Dashboard de Operações Comerciais.
 
-### 🛡️ Fase 6: Segurança e Melhorias Contínuas (Pós-Lançamento)
-*Objetivo: Elevar a arquitetura do projeto para padrões corporativos após a primeira versão estar no ar.*
+### Fase 5: Nuvem e DevOps (Cloud Architecture)
+*Objetivo: Publicar a API em ambiente escalável e automatizar fluxos.*
 
-- [ ] Implementação de Segurança com **Spring Security** e tokens **JWT**.
-- [ ] Controle de acesso baseado em Roles (Admin vs Representante).
+- [ ] Deploy automático (CI/CD) no Railway ou Render.
+- [ ] Migração do PostgreSQL para nuvem (Supabase/Neon).
 - [ ] Versionamento estrutural de Banco de Dados com **Flyway**.
 
 ---

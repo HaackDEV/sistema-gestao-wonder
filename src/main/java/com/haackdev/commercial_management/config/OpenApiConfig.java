@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI wonderOpenAPI() {
+    public OpenAPI commerceFlowOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("WONDER API")
-                        .description("API REST do Sistema de Gestão WONDER para controle comercial.")
+                        .title("CommerceFlow API")
+                        .description("API REST do Sistema de Gestão CommerceFlow para controle comercial.")
                         .version("v1.0.0"));
     }
 }
